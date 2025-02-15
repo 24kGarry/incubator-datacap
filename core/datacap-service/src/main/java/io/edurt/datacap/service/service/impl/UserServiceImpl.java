@@ -1,7 +1,6 @@
 package io.edurt.datacap.service.service.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.enums.ServiceState;
 import io.edurt.datacap.common.response.CommonResponse;
@@ -9,14 +8,15 @@ import io.edurt.datacap.common.response.JwtResponse;
 import io.edurt.datacap.common.utils.CodeUtils;
 import io.edurt.datacap.common.utils.JsonUtils;
 import io.edurt.datacap.common.utils.NullAwareBeanUtils;
+import io.edurt.datacap.common.utils.UrlUtils;
 import io.edurt.datacap.fs.FsRequest;
 import io.edurt.datacap.fs.FsResponse;
 import io.edurt.datacap.fs.FsService;
-import io.edurt.datacap.plugin.Plugin;
 import io.edurt.datacap.plugin.PluginManager;
 import io.edurt.datacap.service.adapter.PageRequestAdapter;
 import io.edurt.datacap.service.audit.AuditUserLog;
 import io.edurt.datacap.service.body.FilterBody;
+import io.edurt.datacap.service.body.UploadBody;
 import io.edurt.datacap.service.body.UserNameBody;
 import io.edurt.datacap.service.body.UserPasswordBody;
 import io.edurt.datacap.service.entity.MenuEntity;
@@ -24,6 +24,7 @@ import io.edurt.datacap.service.entity.PageEntity;
 import io.edurt.datacap.service.entity.RoleEntity;
 import io.edurt.datacap.service.entity.SourceEntity;
 import io.edurt.datacap.service.entity.UserEntity;
+import io.edurt.datacap.service.entity.convert.AvatarEntity;
 import io.edurt.datacap.service.entity.itransient.user.UserEditorEntity;
 import io.edurt.datacap.service.initializer.InitializerConfigure;
 import io.edurt.datacap.service.model.AiModel;
@@ -50,11 +51,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
+import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -80,10 +80,11 @@ public class UserServiceImpl
     private final JwtService jwtService;
     private final RedisTemplate redisTemplate;
     private final Environment environment;
-    private final InitializerConfigure initializerConfigure;
+    private final InitializerConfigure initializer;
     private final PluginManager pluginManager;
+    private final HttpServletRequest request;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, SourceRepository sourceRepository, MenuRepository menuRepository, PasswordEncoder encoder, AuthenticationManager authenticationManager, JwtService jwtService, RedisTemplate redisTemplate, Environment environment, InitializerConfigure initializerConfigure, PluginManager pluginManager)
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, SourceRepository sourceRepository, MenuRepository menuRepository, PasswordEncoder encoder, AuthenticationManager authenticationManager, JwtService jwtService, RedisTemplate redisTemplate, Environment environment, InitializerConfigure initializer, PluginManager pluginManager, HttpServletRequest request)
     {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -94,8 +95,9 @@ public class UserServiceImpl
         this.jwtService = jwtService;
         this.redisTemplate = redisTemplate;
         this.environment = environment;
-        this.initializerConfigure = initializerConfigure;
+        this.initializer = initializer;
         this.pluginManager = pluginManager;
+        this.request = request;
     }
 
     @Override
@@ -302,106 +304,78 @@ public class UserServiceImpl
     }
 
     @Override
-    public CommonResponse<FsResponse> uploadAvatar(MultipartFile file)
+    public CommonResponse<AvatarEntity> uploadAvatar(UploadBody configure)
     {
-        if (file == null || file.isEmpty()) {
-            return CommonResponse.failure("Upload file cannot be empty");
-        }
-
-        return pluginManager.getPlugin(initializerConfigure.getFsConfigure().getType())
-                .map(plugin -> processAvatarUpload(plugin, file))
-                .map(response -> processUploadResult(response, file))
-                .orElse(CommonResponse.failure(String.format("Not found Fs [%s]",
-                        initializerConfigure.getFsConfigure().getType())));
-    }
-
-    private FsResponse processAvatarUpload(Plugin plugin, MultipartFile file)
-    {
-        UserEntity user = UserDetailsService.getUser();
+        AvatarEntity entity = AvatarEntity.builder()
+                .type(initializer.getFsConfigure().getType())
+                .build();
         try {
-            String avatarPath = initializerConfigure.getAvatarPath();
-            log.info("Upload avatar user [{}] home [{}]", user.getUsername(), avatarPath);
+            FsRequest fsRequest = getFsRequest(configure.getFile(), configure);
+            pluginManager.getPlugin(initializer.getFsConfigure().getType())
+                    .ifPresent(plugin -> {
+                        FsService fsService = plugin.getService(FsService.class);
+                        FsResponse response = fsService.writer(fsRequest);
+                        entity.setPath(response.getRemote());
+                        entity.setLocal(response.getRemote());
+                        if (initializer.getFsConfigure().getType().startsWith("Local")) {
+                            entity.setPath(getAccess(entity));
+                        }
 
-            FsRequest fsRequest = buildFsRequest(user, avatarPath, file);
-            FsService fsService = plugin.getService(FsService.class);
-            return fsService.writer(fsRequest);
+                        UserEntity user = UserDetailsService.getUser();
+
+                        userRepository.findByCode(user.getCode())
+                                .ifPresent(value -> {
+                                    value.setAvatarConfigure(entity);
+                                    userRepository.save(value);
+                                });
+                    });
+            return CommonResponse.success(entity);
         }
         catch (IOException e) {
-            log.error("Failed to process avatar upload for user [{}]", user.getUsername(), e);
-            throw new IllegalStateException("Failed to process avatar upload", e);
+            log.error("Failed to upload file [ {} ]", configure.getCode(), e);
+            return CommonResponse.failure(e.getMessage());
+        }
+        finally {
+            try {
+                configure.getFile().getInputStream().close();
+            }
+            catch (IOException e) {
+                log.warn("Failed to close input stream", e);
+            }
         }
     }
 
-    private FsRequest buildFsRequest(UserEntity user, String avatarPath, MultipartFile file)
+    private FsRequest getFsRequest(MultipartFile file, UploadBody configure)
             throws IOException
     {
         return FsRequest.builder()
-                .access(initializerConfigure.getFsConfigure().getAccess())
-                .secret(initializerConfigure.getFsConfigure().getSecret())
-                .endpoint(avatarPath)
-                .bucket(initializerConfigure.getFsConfigure().getBucket())
+                .access(initializer.getFsConfigure().getAccess())
+                .secret(initializer.getFsConfigure().getSecret())
+                .endpoint(getHome(configure))
+                .bucket(initializer.getFsConfigure().getBucket())
                 .stream(file.getInputStream())
-                .fileName(String.format("%s.png", user.getId()))
+                .fileName("avatar.png")
                 .build();
     }
 
-    private CommonResponse<FsResponse> processUploadResult(FsResponse response, MultipartFile file)
+    private String getHome(UploadBody configure)
     {
-        try {
-            UserEntity user = UserDetailsService.getUser();
-            UserEntity entity = userRepository.findById(user.getId())
-                    .orElseThrow(() -> new IllegalStateException("User not found: " + user.getId()));
-
-            Map<String, String> avatar = createAvatarConfig(response, file);
-            entity.setAvatarConfigure(avatar);
-            userRepository.save(entity);
-
-            return CommonResponse.success(response);
+        if (!initializer.getFsConfigure().getType().startsWith("Local")) {
+            return initializer.getFsConfigure().getEndpoint();
         }
-        catch (Exception e) {
-            log.error("Failed to process upload result", e);
-            return CommonResponse.failure("Failed to process upload result: " + e.getMessage());
-        }
+        return String.join(
+                "/",
+                initializer.getDataHome(),
+                UserDetailsService.getUser().getUsername(),
+                configure.getMode().toString().toLowerCase()
+        );
     }
 
-    private Map<String, String> createAvatarConfig(FsResponse response, MultipartFile file)
-            throws IOException
+    private String getAccess(AvatarEntity configure)
     {
-        Map<String, String> avatar = Maps.newConcurrentMap();
-        String fsType = initializerConfigure.getFsConfigure().getType();
-
-        avatar.put("fsType", fsType);
-        avatar.put("local", response.getRemote());
-
-        if ("Local".equals(fsType)) {
-            avatar.put("path", encodeImageToBase64(file.getInputStream()));
-        }
-        else {
-            avatar.put("path", response.getRemote());
-        }
-
-        return avatar;
-    }
-
-    private String encodeImageToBase64(InputStream inputStream)
-            throws IOException
-    {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-            return String.format("data:image/jpeg;base64,%s", Base64.getEncoder().encodeToString(outputStream.toByteArray()));
-        }
-        catch (IOException e) {
-            log.warn("Encode image to base64 exception", e);
-            return null;
-        }
-        finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-        }
+        String protocol = request.getScheme();
+        String host = request.getServerName();
+        int port = request.getServerPort();
+        return protocol + "://" + host + ":" + port + UrlUtils.fixUrl("/upload" + configure.getPath().replaceFirst(initializer.getDataHome(), ""));
     }
 }
