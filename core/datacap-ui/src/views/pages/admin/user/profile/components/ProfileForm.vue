@@ -6,30 +6,7 @@
                       class="w-[40%]"
                       :label="$t('user.common.avatar')"
                       :description="$t('user.tip.avatar')">
-        <div class="flex flex-row items-center justify-between">
-          <div>
-            <ShadcnAvatar :src="formState.avatarConfigure?.path as string" :alt="formState.username"/>
-          </div>
-          <div class="w-32 space-y-2 items-center">
-            <ShadcnAvatar v-if="inputFileBase64" :src="inputFileBase64 as string"/>
-            <div class="space-x-1">
-              <input type="file" id="fileInput" class="hidden" @change="handleFileChange"/>
-              <label v-if="!inputFile" for="fileInput" class="cursor-pointer">
-                <ShadcnTooltip :content="$t('common.file')">
-                  <ShadcnAvatar size="small"/>
-                </ShadcnTooltip>
-              </label>
-              <div v-else class="space-x-1">
-                <ShadcnButton :loading="uploading" :disabled="uploading" size="icon" class="w-6 h-6" @click="handlerUpload">
-                  <ShadcnIcon icon="Upload" v-if="!uploading" size="15"/>
-                </ShadcnButton>
-                <ShadcnButton :disabled="uploading" size="icon" variant="destructive" class="w-6 h-6" @click="inputFile = null">
-                  <ShadcnIcon icon="Trash" size="15"/>
-                </ShadcnButton>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CropperHome :pic="formState.avatarConfigure?.path" @update:value="onCropper"/>
       </ShadcnFormItem>
 
       <ShadcnFormItem name="username"
@@ -53,10 +30,11 @@
 import { defineComponent } from 'vue'
 import UserService from '@/services/user'
 import { UserModel } from '@/model/user'
-import Common from '@/utils/common'
+import CropperHome from '@/views/components/cropper/CropperHome.vue'
 
 export default defineComponent({
   name: 'ProfileForm',
+  components: { CropperHome },
   data()
   {
     return {
@@ -83,33 +61,30 @@ export default defineComponent({
                  })
                  .finally(() => this.loading = false)
     },
-    handleFileChange(event: Event)
+    onCropper(value: any)
     {
-      const input = event.target as HTMLInputElement
-      if (input.files && input.files.length > 0) {
-        this.inputFile = input.files[0]
-        Common.fileToBase64(this.inputFile)
-              .then(response => {
-                this.inputFileBase64 = response
-              })
+      const configure = {
+        mode: 'AVATAR',
+        file: value
       }
-    },
-    handlerUpload()
-    {
-      if (this.inputFile) {
-        this.uploading = true
-        const formData = new FormData()
-        formData.append('file', this.inputFile)
-        UserService.uploadAvatar(formData)
-                   .then(response => {
-                     if (response.status) {
-                       this.inputFile = null
-                       this.inputFileBase64 = null
-                       this.handlerInitialize()
+      UserService.uploadAvatar(configure)
+                 .then(response => {
+                   if (response.status) {
+                     if (this.formState) {
+                       this.formState.avatar = response.data
                      }
-                   })
-                   .finally(() => this.uploading = false)
-      }
+                     this.$Message.success({
+                       content: this.$t('common.successfully'),
+                       showIcon: true
+                     })
+                   }
+                   else {
+                     this.$Message.error({
+                       content: response.message,
+                       showIcon: true
+                     })
+                   }
+                 })
     }
   }
 })

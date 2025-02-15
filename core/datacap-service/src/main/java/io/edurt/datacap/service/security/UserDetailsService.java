@@ -54,7 +54,7 @@ public class UserDetailsService
                 .collect(Collectors.toList());
         String avatar = null;
         if (user.getAvatarConfigure() != null) {
-            avatar = user.getAvatarConfigure().get("path");
+            avatar = user.getAvatarConfigure().getPath();
         }
         return new UserDetailsService(
                 user.getId(),

@@ -1,12 +1,12 @@
 package io.edurt.datacap.service.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.view.EntityView;
-import io.edurt.datacap.service.converter.MapConverter;
+import io.edurt.datacap.service.converter.AvatarConverter;
 import io.edurt.datacap.service.converter.UserEditorConverter;
+import io.edurt.datacap.service.entity.convert.AvatarEntity;
 import io.edurt.datacap.service.entity.itransient.user.UserEditorEntity;
 import io.edurt.datacap.service.validation.ValidationGroup;
 import lombok.AllArgsConstructor;
@@ -33,7 +33,6 @@ import javax.validation.constraints.Size;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -83,10 +82,9 @@ public class UserEntity
     private UserEditorEntity editorConfigure;
 
     @Column(name = "avatar_configure")
-    @Convert(converter = MapConverter.class)
-    @JsonIgnoreProperties(value = {"fsType", "local"})
+    @Convert(converter = AvatarConverter.class)
     @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
-    private Map<String, String> avatarConfigure;
+    private AvatarEntity avatarConfigure;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "datacap_user_role_relation",

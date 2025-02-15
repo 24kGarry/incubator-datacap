@@ -14,7 +14,7 @@ repo:
   branch: dev
 
 banner:
-  content: 💗 <a href="https://afdian.com/a/devlive-community" target="_blank">DataCap 2024.4.1 is released, 如果喜欢我们的软件，请点击这里支持我们</a> ❤️  <span class="text-red-500">文档重构中，可能有偏差，会实时更新</span>
+  content: 💗 <a href="https://afdian.com/a/devlive-community" target="_blank">DataCap 2024.4.1 is released, 如果喜欢我们的软件，请点击这里支持我们</a> ❤️
 
 feature:
   lucide:

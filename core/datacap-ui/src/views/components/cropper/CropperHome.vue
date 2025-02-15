@@ -6,7 +6,11 @@
   </div>
 
   <div v-if="result.blobURL || pic" class="mt-2.5 flex justify-center">
-    <ShadcnAvatar square :src="result.blobURL ? result.blobURL : pic" style="width: 200px; height: 200px"/>
+    <ShadcnAvatar square
+                  style="width: 10rem; height: 10rem;"
+                  class="bg-transparent"
+                  :src="result.blobURL ? result.blobURL : pic">
+    </ShadcnAvatar>
   </div>
 
   <ShadcnModal v-if="isShowModal"

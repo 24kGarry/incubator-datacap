@@ -1,16 +1,16 @@
 package io.edurt.datacap.service.service;
 
 import io.edurt.datacap.common.response.CommonResponse;
-import io.edurt.datacap.fs.FsResponse;
 import io.edurt.datacap.service.body.FilterBody;
+import io.edurt.datacap.service.body.UploadBody;
 import io.edurt.datacap.service.body.UserNameBody;
 import io.edurt.datacap.service.body.UserPasswordBody;
 import io.edurt.datacap.service.entity.PageEntity;
 import io.edurt.datacap.service.entity.UserEntity;
+import io.edurt.datacap.service.entity.convert.AvatarEntity;
 import io.edurt.datacap.service.entity.itransient.user.UserEditorEntity;
 import io.edurt.datacap.service.model.AiModel;
 import io.edurt.datacap.service.record.TreeRecord;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -37,5 +37,5 @@ public interface UserService
 
     CommonResponse<Long> changeEditorConfigure(UserEditorEntity configure);
 
-    CommonResponse<FsResponse> uploadAvatar(MultipartFile file);
+    CommonResponse<AvatarEntity> uploadAvatar(UploadBody configure);
 }

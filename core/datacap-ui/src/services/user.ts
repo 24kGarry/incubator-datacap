@@ -126,7 +126,7 @@ class UserService
         return new HttpUtils().put(`${ DEFAULT_PATH_USER }/changePassword`, configure)
     }
 
-    uploadAvatar(configure: FormData): Promise<ResponseModel>
+    uploadAvatar(configure: any): Promise<ResponseModel>
     {
         return new HttpUtils().upload(`${ DEFAULT_PATH_USER }/uploadAvatar`, configure)
     }
