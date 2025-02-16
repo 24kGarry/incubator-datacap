@@ -47,4 +47,6 @@ public interface MetadataService
     CommonResponse<Response> insertData(String code, String database, String table, TableDefinition configure);
 
     CommonResponse<Response> updateData(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> getSuggests(String code, String keyword);
 }

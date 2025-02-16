@@ -104,16 +104,19 @@
                 <ShadcnCodeEditor v-model="item.content"
                                   :config="{language: 'sql', ...editorConfig}"
                                   :auto-complete-config="{
-                                      endpoint: `http://localhost:9096/api/v1/metadata/${selectSource.code}/databases`,
+                                      endpoint: `${baseUrl ? baseUrl : ''}/api/v1/metadata/${selectSource.code}/suggests`,
                                       method: 'GET',
                                       trigger: ['.', '@'],
                                       headers: { 'Authorization': auth?.type + ' ' + auth?.token },
+                                      requestParams: (context) => ({
+                                          keyword: context.word
+                                      }),
                                       transform: (response: any) => {
                                         return response[0].data.columns.map((item: any) => ({
                                           label: item.object_name,
                                           insertText: item.object_name,
-                                          detail: item.object_name,
-                                          icon: 'Database'
+                                          detail: $t(item.object_key),
+                                          icon: item.object_type
                                         }))
                                       }
                                   }">
@@ -224,7 +227,8 @@ export default defineComponent({
         message: null as string | null
       },
       dataInfo: null as unknown as SnippetModel,
-      dataInfoVisible: false
+      dataInfoVisible: false,
+      baseUrl: import.meta.env.VITE_API_BASE_URL
     }
   },
   created()
