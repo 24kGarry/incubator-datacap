@@ -1195,7 +1195,7 @@ public interface PluginService
         );
     }
 
-    private Response getResponse(String sql, Configure configure, BaseDefinition definition)
+    default Response getResponse(String sql, Configure configure, BaseDefinition definition)
     {
         Response response;
         if (definition.isPreview()) {
