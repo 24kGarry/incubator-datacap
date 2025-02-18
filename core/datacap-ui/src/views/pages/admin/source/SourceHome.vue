@@ -65,20 +65,6 @@
                 </ShadcnLink>
               </ShadcnDropdownItem>
 
-              <ShadcnDropdownItem :disabled="(loginUserCode !== row.user.code)" @on-click="visibleHistory(true, row)">
-                <div class="flex items-center space-x-2">
-                  <ShadcnIcon icon="History" size="15"/>
-                  <span>{{ $t('source.common.syncHistory') }}</span>
-                </div>
-              </ShadcnDropdownItem>
-
-              <ShadcnDropdownItem :disabled="(loginUserCode !== row.user.code) || !row.available" @on-click="visibleSyncMetadata(true, row)">
-                <div class="flex items-center space-x-2">
-                  <ShadcnIcon icon="RefreshCcwDot" size="15"/>
-                  <span>{{ $t('source.common.syncMetadata') }}</span>
-                </div>
-              </ShadcnDropdownItem>
-
               <ShadcnDropdownItem :disabled="loginUserCode !== row.user.code" @on-click="visibleDelete(true, row)">
                 <div class="flex items-center space-x-2">
                   <ShadcnIcon icon="Trash" size="15"/>

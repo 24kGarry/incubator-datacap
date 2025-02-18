@@ -718,6 +718,106 @@ public interface PluginService
         );
     }
 
+    default Response getSuggests(Configure configure, String keyword)
+    {
+        String sql = "(\n" +
+                "    -- 数据库\n" +
+                "    SELECT\n" +
+                "        SCHEMA_NAME as object_name,\n" +
+                "        'Database' as object_type,\n" +
+                "        'common.database' as object_key\n" +
+                "    FROM information_schema.SCHEMATA\n" +
+                "    WHERE SCHEMA_NAME LIKE '%{0}%'\n" +
+                ")\n" +
+                "UNION ALL\n" +
+                "(\n" +
+                "    -- 表和视图\n" +
+                "    SELECT\n" +
+                "        TABLE_NAME as object_name,\n" +
+                "        CASE TABLE_TYPE\n" +
+                "            WHEN 'BASE TABLE' THEN 'Table'\n" +
+                "            WHEN 'VIEW' THEN 'View'\n" +
+                "            ELSE 'Table'\n" +
+                "        END as object_type,\n" +
+                "        CASE TABLE_TYPE\n" +
+                "            WHEN 'BASE TABLE' THEN 'common.table'\n" +
+                "            WHEN 'VIEW' THEN 'common.view'\n" +
+                "            ELSE 'common.table'\n" +
+                "        END as object_key\n" +
+                "    FROM information_schema.TABLES\n" +
+                "    WHERE TABLE_NAME LIKE '%{0}%'\n" +
+                ")\n" +
+                "UNION ALL\n" +
+                "(\n" +
+                "    -- 列（包含主键、索引信息）\n" +
+                "    SELECT DISTINCT\n" +
+                "        COLUMN_NAME as object_name,\n" +
+                "        CASE\n" +
+                "            WHEN COLUMN_KEY = 'PRI' THEN 'Key'\n" +
+                "            WHEN COLUMN_KEY = 'UNI' THEN 'Signature'\n" +
+                "            WHEN COLUMN_KEY = 'MUL' THEN 'Hash'\n" +
+                "            ELSE 'Columns2'\n" +
+                "        END as object_type,\n" +
+                "        CASE\n" +
+                "            WHEN COLUMN_KEY = 'PRI' THEN 'common.primary'\n" +
+                "            WHEN COLUMN_KEY = 'UNI' THEN 'common.unique'\n" +
+                "            WHEN COLUMN_KEY = 'MUL' THEN 'common.index'\n" +
+                "            ELSE 'common.column'\n" +
+                "        END as object_key\n" +
+                "    FROM information_schema.COLUMNS\n" +
+                "    WHERE COLUMN_NAME LIKE '%{0}%'\n" +
+                ")\n" +
+                "UNION ALL\n" +
+                "(\n" +
+                "    -- 触发器\n" +
+                "    SELECT\n" +
+                "        TRIGGER_NAME as object_name,\n" +
+                "        'Pi' as object_type,\n" +
+                "        'common.trigger' as object_key\n" +
+                "    FROM information_schema.TRIGGERS\n" +
+                "    WHERE TRIGGER_NAME LIKE '%{0}%'\n" +
+                ")\n" +
+                "UNION ALL\n" +
+                "(\n" +
+                "    -- 存储过程\n" +
+                "    SELECT\n" +
+                "        ROUTINE_NAME as object_name,\n" +
+                "        'Microchip' as object_type,\n" +
+                "        'common.procedure' as object_key\n" +
+                "    FROM information_schema.ROUTINES\n" +
+                "    WHERE ROUTINE_TYPE = 'PROCEDURE'\n" +
+                "        AND ROUTINE_NAME LIKE '%{0}%'\n" +
+                ")\n" +
+                "UNION ALL\n" +
+                "(\n" +
+                "    -- 函数\n" +
+                "    SELECT\n" +
+                "        ROUTINE_NAME as object_name,\n" +
+                "        'SquareFunction' as object_type,\n" +
+                "        'common.function' as object_key\n" +
+                "    FROM information_schema.ROUTINES\n" +
+                "    WHERE ROUTINE_TYPE = 'FUNCTION'\n" +
+                "        AND ROUTINE_NAME LIKE '%{0}%'\n" +
+                ")\n" +
+                "ORDER BY\n" +
+                "    CASE object_type\n" +
+                "        WHEN 'Database' THEN 1\n" +
+                "        WHEN 'Table' THEN 2\n" +
+                "        WHEN 'View' THEN 3\n" +
+                "        WHEN 'Key' THEN 4\n" +
+                "        WHEN 'Signature' THEN 5\n" +
+                "        WHEN 'Hash' THEN 6\n" +
+                "        WHEN 'Columns2' THEN 7\n" +
+                "        WHEN 'Pi' THEN 8\n" +
+                "        WHEN 'Microchip' THEN 9\n" +
+                "        WHEN 'SquareFunction' THEN 10\n" +
+                "        ELSE 11\n" +
+                "    END,\n" +
+                "    object_name;";
+
+        return this.execute(configure, sql.replace("{0}", keyword));
+    }
+
     /**
      * 更新表的自增值
      * Update table auto increment value
@@ -1095,7 +1195,7 @@ public interface PluginService
         );
     }
 
-    private Response getResponse(String sql, Configure configure, BaseDefinition definition)
+    default Response getResponse(String sql, Configure configure, BaseDefinition definition)
     {
         Response response;
         if (definition.isPreview()) {

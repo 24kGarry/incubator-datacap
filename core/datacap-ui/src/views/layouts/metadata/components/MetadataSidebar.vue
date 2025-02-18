@@ -49,11 +49,11 @@
                         size="16"
                         icon="Key"/>
 
-            <span class="font-normal text-gray-900">
+            <span class="text-sm font-normal text-gray-500">
               {{ node.title }}
             </span>
 
-            <span v-if="node.level === StructureEnum.COLUMN" class="text-xs font-normal text-gray-500 ml-1">
+            <span v-if="node.level === StructureEnum.COLUMN" class="text-xs font-normal text-gray-400 ml-1">
               {{ node.typeName === 'column' ? node.type : node.definition }}
             </span>
           </div>

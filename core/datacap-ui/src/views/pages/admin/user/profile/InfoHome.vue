@@ -10,38 +10,7 @@
                     :description="$t('user.tip.contribution')"
                     :loading="loading">
           <div class="p-2">
-            <CalendarHeatmap :tooltip-unit="$t('heatmap.common.query')"
-                             :end-date="heatmap.endDate"
-                             :round="10"
-                             :values="heatmap.data"
-                             :locale="{
-                                  months: [
-                                            $t('heatmap.common.jan'),
-                                            $t('heatmap.common.feb'),
-                                            $t('heatmap.common.mar'),
-                                            $t('heatmap.common.apr'),
-                                            $t('heatmap.common.mai'),
-                                            $t('heatmap.common.jun'),
-                                            $t('heatmap.common.jul'),
-                                            $t('heatmap.common.aug'),
-                                            $t('heatmap.common.sep'),
-                                            $t('heatmap.common.okt'),
-                                            $t('heatmap.common.nov'),
-                                            $t('heatmap.common.dez')
-                                          ],
-                                  days  : [
-                                            $t('heatmap.common.so'),
-                                            $t('heatmap.common.mo'),
-                                            $t('heatmap.common.di'),
-                                            $t('heatmap.common.mi'),
-                                            $t('heatmap.common.do'),
-                                            $t('heatmap.common.fr'),
-                                            $t('heatmap.common.sa')
-                                           ],
-                                  on    : $t('heatmap.common.am'),
-                                  less  : $t('heatmap.common.less'),
-                                  more  : $t('heatmap.common.more')
-                             }"/>
+            <ShadcnContribution :data="heatmap.data"/>
           </div>
         </ShadcnCard>
       </ShadcnCol>
@@ -61,8 +30,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { CalendarHeatmap } from 'vue3-calendar-heatmap'
-import './vue3-calendar-heatmap.css'
 import { HttpUtils } from '@/utils/http'
 import UserService from '@/services/user'
 import { Configuration } from '@/views/components/visual/Configuration'
@@ -72,16 +39,14 @@ import { DateUtils } from '@/utils/date'
 export default defineComponent({
   name: 'InfoHome',
   components: {
-    VisualPie,
-    CalendarHeatmap
+    VisualPie
   },
   data()
   {
     return {
       loading: false,
       heatmap: {
-        data: [],
-        endDate: null as string | null
+        data: []
       },
       radar: {
         configuration: null as Configuration | null
