@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Preconditions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.spi.PluginService;
+import io.edurt.datacap.spi.generator.definition.ColumnDefinition;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.model.Configure;
 import io.edurt.datacap.spi.model.Pagination;
 import io.edurt.datacap.spi.model.Response;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 
 @Slf4j
 @SuppressFBWarnings(value = {"EI_EXPOSE_REP"})
@@ -326,5 +329,101 @@ public class ClickHouseService
                 "    object_name;";
 
         return this.execute(configure, sql.replace("{0}", keyword));
+    }
+
+    @Override
+    public Response getColumn(Configure configure, TableDefinition definition)
+    {
+        Optional<ColumnDefinition> column = definition.getColumns().stream().findAny();
+
+        if (column.isEmpty()) {
+            throw new IllegalArgumentException("Column must be specified");
+        }
+
+        String sql = "SELECT\n" +
+                "    detail.*\n" +
+                "FROM (\n" +
+                "    -- 列信息\n" +
+                "    SELECT\n" +
+                "        'column' as type_name,\n" +
+                "        name as object_name,\n" +
+                "        type as object_data_type,\n" +
+                "        NULL as object_length,\n" +
+                "        if(is_in_primary_key = 0, 'YES', 'NO') as object_nullable,\n" +
+                "        default_expression as object_default_value,\n" +
+                "        comment as object_comment,\n" +
+                "        position as object_position,\n" +
+                "        '' as object_definition\n" +
+                "    FROM\n" +
+                "        system.columns\n" +
+                "    WHERE\n" +
+                "        database = '{0}'\n" +
+                "        AND table = '{1}'\n" +
+                "        AND name = '{2}'\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 主键信息\n" +
+                "    SELECT\n" +
+                "        'primary' as type_name,\n" +
+                "        name as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        NULL as object_length,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        concat('PRIMARY KEY on (', name, ')') as object_definition\n" +
+                "    FROM\n" +
+                "        system.columns\n" +
+                "    WHERE\n" +
+                "        database = '{0}'\n" +
+                "        AND table = '{1}'\n" +
+                "        AND name = '{2}'\n" +
+                "        AND is_in_primary_key = 1\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 索引信息\n" +
+                "    SELECT\n" +
+                "        'index' as type_name,\n" +
+                "        name as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        NULL as object_length,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        concat(\n" +
+                "            'Index on (',\n" +
+                "            name,\n" +
+                "            ')'\n" +
+                "        ) as object_definition\n" +
+                "    FROM\n" +
+                "        system.columns\n" +
+                "    WHERE\n" +
+                "        database = '{0}'\n" +
+                "        AND table = '{1}'\n" +
+                "        AND name = '{2}'\n" +
+                "        AND is_in_sorting_key = 1\n" +
+                "\n" +
+                ") detail\n" +
+                "ORDER BY\n" +
+                "    multiIf(\n" +
+                "        type_name = 'column', 1,\n" +
+                "        type_name = 'primary', 2,\n" +
+                "        type_name = 'index', 3,\n" +
+                "        4\n" +
+                "    ),\n" +
+                "    object_position,\n" +
+                "    object_name;";
+
+        return this.getResponse(
+                sql.replace("{0}", definition.getDatabase())
+                        .replace("{1}", definition.getName())
+                        .replace("{2}", column.get().getName()),
+                configure,
+                definition
+        );
     }
 }
