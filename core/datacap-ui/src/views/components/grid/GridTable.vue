@@ -3,7 +3,7 @@
     <template #title>
       <ShadcnSpace>
         <ShadcnButton>
-          <RouterLink :to="`/admin/dataset/info/source/${configure.code}`" target="_blank">
+          <RouterLink :to="`/admin/dataset/info/source/${configure.code}?tempId=${tempId}`" target="_blank">
               <span class="flex items-center">
                 <ShadcnIcon icon="Plus" size="15"/>
                 <span>{{ $t('common.dataset') }}</span>
@@ -47,7 +47,6 @@ import { AgGridVue } from 'ag-grid-vue3'
 import 'ag-grid-community/styles/ag-grid.css'
 import './ag-theme-datacap.css'
 import { useI18n } from 'vue-i18n'
-import { mapActions } from 'vuex'
 import { GridConfigure } from '@/views/components/grid/GridConfigure'
 import GridOptions from '@/views/components/grid/GridOptions'
 import { GridColumn } from '@/views/components/grid/GridColumn'
@@ -85,15 +84,17 @@ export default defineComponent({
       columnDefs: [] as GridColumn[],
       isPage: true,
       type: 'table',
-      visualVisible: false
+      visualVisible: false,
+      tempId: null
     }
   },
   methods: {
-    ...mapActions(['updateData']),
     handleInitialize()
     {
       if (this.configure) {
-        this.updateData(this.configure)
+        const tempId = Math.random().toString(36).substring(2)
+        this.tempId = tempId
+        localStorage.setItem(`QueryContent_${ tempId }`, this.configure.query)
         this.configure.headers!.forEach((header: string) => {
           const columnDef: GridColumn = { headerName: header, field: header }
           this.columnDefs.push(columnDef)

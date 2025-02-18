@@ -218,7 +218,7 @@
 
             <ShadcnCol span="6">
               <ShadcnFormItem name="scheduler" :label="$t('common.scheduler')">
-                <ShadcnSelect v-model="formState.scheduler" name="scheduler">
+                <ShadcnSelect v-model="formState.scheduler" name="scheduler" :disabled="formState.syncMode !== 'TIMING'">
                   <template #options>
                     <ShadcnSelectOption v-for="item in schedulers" :label="item.name" :value="item.name"/>
                   </template>
@@ -388,7 +388,11 @@ export default defineComponent({
                .finally(() => this.loading = false)
         }
         else if (sourceCode) {
-          this.value = localStorage.getItem('QueryContent') as string
+          const tempId = this.$route.query.tempId
+          if (tempId) {
+            this.value = localStorage.getItem(`QueryContent_${ tempId }`) || ''
+            localStorage.removeItem(`QueryContent_${ tempId }`)
+          }
           this.loading = true
           SourceService.getByCode(sourceCode as string)
                        .then(response => {
