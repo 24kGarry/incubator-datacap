@@ -2,6 +2,7 @@ package io.edurt.datacap.plugin.jdbc.clickhouse;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.spi.PluginService;
 import io.edurt.datacap.spi.generator.column.CreateColumn;
@@ -32,9 +33,29 @@ public class ClickHouseService
     }
 
     @Override
+    public Boolean isSupportMeta()
+    {
+        return true;
+    }
+
+    @Override
     public Response getEngines()
     {
-        return PluginService.super.getEngines();
+        return Response.builder()
+                .columns(Lists.newArrayList(
+                        "MergeTree",
+                        "ReplicatedMergeTree",
+                        "ReplacingMergeTree",
+                        "SummingMergeTree",
+                        "AggregatingMergeTree",
+                        "CollapsingMergeTree",
+                        "Log",
+                        "StripeLog",
+                        "TinyLog"
+                ))
+                .isConnected(true)
+                .isSuccessful(true)
+                .build();
     }
 
     @Override

@@ -3,7 +3,7 @@ package io.edurt.datacap.plugin;
 import io.edurt.datacap.spi.PluginService;
 
 public class MySQLService
-    implements PluginService
+        implements PluginService
 {
     @Override
     public String connectType()
@@ -15,5 +15,11 @@ public class MySQLService
     public String driver()
     {
         return "com.mysql.cj.jdbc.Driver";
+    }
+
+    @Override
+    public Boolean isSupportMeta()
+    {
+        return true;
     }
 }

@@ -56,14 +56,24 @@
                 </ShadcnButton>
               </template>
 
-              <ShadcnDropdownItem :disabled="(loginUserCode !== row.user.code) || !row.available">
-                <ShadcnLink :link="`/admin/source/${row?.code}`" target="_blank">
+              <template v-if="(loginUserCode === row.user.code) && row.available && row.isSupportMeta">
+                <ShadcnDropdownItem>
+                  <ShadcnLink :link="`/admin/source/${row?.code}`" target="_blank">
+                    <div class="flex items-center space-x-2">
+                      <ShadcnIcon icon="Cog" size="15"/>
+                      <span>{{ $t('source.common.manager') }}</span>
+                    </div>
+                  </ShadcnLink>
+                </ShadcnDropdownItem>
+              </template>
+              <template v-else>
+                <ShadcnDropdownItem disabled>
                   <div class="flex items-center space-x-2">
                     <ShadcnIcon icon="Cog" size="15"/>
                     <span>{{ $t('source.common.manager') }}</span>
                   </div>
-                </ShadcnLink>
-              </ShadcnDropdownItem>
+                </ShadcnDropdownItem>
+              </template>
 
               <ShadcnDropdownItem :disabled="loginUserCode !== row.user.code" @on-click="visibleDelete(true, row)">
                 <div class="flex items-center space-x-2">
