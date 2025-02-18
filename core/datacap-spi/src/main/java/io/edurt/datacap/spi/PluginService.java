@@ -1222,7 +1222,7 @@ public interface PluginService
         return response;
     }
 
-    private CreateColumn getCreateColumn(ColumnDefinition col)
+    default CreateColumn getCreateColumn(ColumnDefinition col)
     {
         CreateColumn column = CreateColumn.create(col.getName(), col.getType());
 
