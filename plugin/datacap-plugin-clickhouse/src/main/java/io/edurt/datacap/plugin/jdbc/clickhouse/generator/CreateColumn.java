@@ -1,7 +1,9 @@
 package io.edurt.datacap.plugin.jdbc.clickhouse.generator;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.spi.generator.DataType;
 
+@SuppressFBWarnings(value = {"NM_SAME_SIMPLE_NAME_AS_SUPERCLASS"})
 public class CreateColumn
         extends io.edurt.datacap.spi.generator.column.CreateColumn
 {
