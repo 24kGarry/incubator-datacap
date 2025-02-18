@@ -7,7 +7,7 @@ public class CreateColumn
 {
     private boolean autoIncrement;
 
-    private CreateColumn(String name, DataType type)
+    protected CreateColumn(String name, DataType type)
     {
         super(name, type);
     }

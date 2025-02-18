@@ -77,6 +77,16 @@ public interface PluginService
         return "datacap";
     }
 
+    /**
+     * 是否支持元数据管理
+     *
+     * @return 是否支持
+     */
+    default Boolean isSupportMeta()
+    {
+        return false;
+    }
+
     default void connect(Configure configure)
     {
         Response response = new Response();
@@ -1222,7 +1232,7 @@ public interface PluginService
         return response;
     }
 
-    private CreateColumn getCreateColumn(ColumnDefinition col)
+    default CreateColumn getCreateColumn(ColumnDefinition col)
     {
         CreateColumn column = CreateColumn.create(col.getName(), col.getType());
 

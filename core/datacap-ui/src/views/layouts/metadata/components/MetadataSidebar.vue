@@ -301,7 +301,9 @@ export default defineComponent({
     },
     onNodeClick(node: any)
     {
-      if (node.level === StructureEnum.TYPE || node.level === StructureEnum.COLUMN) {
+      if (node.level === StructureEnum.TYPE
+          || node.level === StructureEnum.COLUMN
+      ) {
         return
       }
 
@@ -395,9 +397,9 @@ export default defineComponent({
         type,
         title: `${ this.$t('common.' + type) } (${ items.length })`,
         level: StructureEnum.TYPE,
-        value: `${type}_${new Date().getTime()}`,
+        value: `${ type }_${ new Date().getTime() }`,
         children: items.map(item => ({
-          type: item.object_data_type || '',
+          type: item.object_data_type || item.type_name || '',
           title: item.object_name,
           level: level,
           isLeaf: false,

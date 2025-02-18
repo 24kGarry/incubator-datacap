@@ -154,6 +154,10 @@ public class SourceEntity
     @JsonProperty(value = "configure")
     private IConfigure configure;
 
+    @Transient
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
+    private Boolean isSupportMeta;
+
     public void setOriginalConfigure(String configure)
     {
         this.originalConfigure = configure;

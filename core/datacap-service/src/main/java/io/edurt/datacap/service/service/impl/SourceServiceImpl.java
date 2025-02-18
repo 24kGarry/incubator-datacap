@@ -85,6 +85,12 @@ public class SourceServiceImpl
             if (fromConfigure != null) {
                 item.setPipelines(fromConfigure.getPipelines());
             }
+
+            pluginManager.getPlugin(item.getType())
+                    .ifPresent(plugin -> {
+                        PluginService service = plugin.getService(PluginService.class);
+                        item.setIsSupportMeta(service.isSupportMeta());
+                    });
         });
         return CommonResponse.success(PageEntity.build(page));
     }
