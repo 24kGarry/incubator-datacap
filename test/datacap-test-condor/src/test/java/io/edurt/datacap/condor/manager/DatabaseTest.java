@@ -33,14 +33,7 @@ public class DatabaseTest
     }
 
     @Test
-    public void step3DropDatabase()
-    {
-        SQLExecutor executor = new SQLExecutor(databaseManager);
-        assertTrue(executor.execute("DROP DATABASE IF EXISTS test").isSuccess());
-    }
-
-    @Test
-    public void step4CreateTable()
+    public void step3CreateTable()
     {
         SQLExecutor executor = new SQLExecutor(databaseManager);
         log.info("{}", executor.execute("USE test"));
@@ -60,5 +53,12 @@ public class DatabaseTest
         sql = "SELECT id, name FROM test_table";
         SQLResult<List<RowDefinition>> rows = executor.execute(sql);
         rows.getData().forEach(row -> log.info("{}", row.getValue("name")));
+    }
+
+    @Test
+    public void step4DropDatabase()
+    {
+        SQLExecutor executor = new SQLExecutor(databaseManager);
+        assertTrue(executor.execute("DROP DATABASE IF EXISTS test").isSuccess());
     }
 }
