@@ -1,9 +1,13 @@
 package io.edurt.datacap.service.aspect;
 
+import com.google.common.collect.Lists;
+import io.edurt.datacap.common.response.CommonResponse;
 import io.edurt.datacap.notify.NotifyService;
 import io.edurt.datacap.notify.model.NotifyRequest;
 import io.edurt.datacap.plugin.PluginManager;
 import io.edurt.datacap.service.annotation.SendNotification;
+import io.edurt.datacap.service.entity.BaseEntity;
+import io.edurt.datacap.service.entity.NotificationEntity;
 import io.edurt.datacap.service.entity.UserEntity;
 import io.edurt.datacap.service.repository.NotificationRepository;
 import io.edurt.datacap.service.repository.UserRepository;
@@ -12,9 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
+import java.util.Optional;
 
 @Aspect
 @Component
@@ -23,7 +30,6 @@ public class NotificationAspect
 {
     private final NotificationRepository repository;
     private final UserRepository userRepository;
-    private final SpelExpressionParser expressionParser;
     private final PluginManager pluginManager;
 
     public NotificationAspect(NotificationRepository repository, UserRepository userRepository, PluginManager pluginManager)
@@ -31,42 +37,49 @@ public class NotificationAspect
         this.repository = repository;
         this.userRepository = userRepository;
         this.pluginManager = pluginManager;
-        this.expressionParser = new SpelExpressionParser();
     }
 
     @AfterReturning(pointcut = "@annotation(sendNotification)", returning = "result")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendNotification(JoinPoint joinPoint, SendNotification sendNotification, Object result)
     {
         try {
-            // 获取方法参数
-            Object[] args = joinPoint.getArgs();
-
-            // 创建 SpEL 上下文
-            StandardEvaluationContext context = new StandardEvaluationContext();
-            context.setVariable("args", args);
-            context.setVariable("result", result);
-
-            // 解析标题和内容中的表达式
-            String title = expressionParser.parseExpression(sendNotification.title())
-                    .getValue(context, String.class);
-            String content = expressionParser.parseExpression(sendNotification.content())
-                    .getValue(context, String.class);
-
             UserEntity loginUser = UserDetailsService.getUser();
-            userRepository.findByCode(loginUser.getCode())
-                    .ifPresent(value -> value.getNotificationTypes().forEach(type -> pluginManager.getPlugin(type)
-                            .ifPresent(plugin -> {
-                                NotifyService notifyService = plugin.getService(NotifyService.class);
 
-                                NotifyRequest request = new NotifyRequest();
-                                request.setTitle(title);
-                                request.setContent(content);
-                                notifyService.send(request);
-                            })
-                    ));
+            if (result instanceof CommonResponse) {
+                @SuppressWarnings("unchecked")
+                CommonResponse<BaseEntity> response = (CommonResponse<BaseEntity>) result;
+                sendDefaultNotification(sendNotification, response.getData());
+            }
+
+            userRepository.findByCode(loginUser.getCode())
+                    .ifPresent(value -> Optional.ofNullable(value.getNotificationTypes())
+                            .orElse(Lists.newArrayList())
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .forEach(type -> pluginManager.getPlugin(type).flatMap(plugin -> Optional.ofNullable(plugin.getService(NotifyService.class)))
+                                    .ifPresent(notifyService -> {
+                                        NotifyRequest request = new NotifyRequest();
+                                        request.setTitle(sendNotification.title());
+                                        request.setContent(sendNotification.content());
+                                        notifyService.send(request);
+                                    })));
         }
         catch (Exception e) {
             log.error("Failed to send notification", e);
         }
+    }
+
+    private void sendDefaultNotification(SendNotification sendNotification, Object configure)
+    {
+        NotificationEntity entity = NotificationEntity.builder()
+                .content(sendNotification.content())
+                .user(UserDetailsService.getUser())
+                .type(sendNotification.type().name())
+                .name(sendNotification.title())
+                .original(configure)
+                .isRead(false)
+                .build();
+        repository.save(entity);
     }
 }

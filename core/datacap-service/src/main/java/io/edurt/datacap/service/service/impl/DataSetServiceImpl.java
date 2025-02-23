@@ -28,6 +28,7 @@ import io.edurt.datacap.plugin.PluginMetadata;
 import io.edurt.datacap.scheduler.SchedulerRequest;
 import io.edurt.datacap.scheduler.SchedulerService;
 import io.edurt.datacap.service.adapter.PageRequestAdapter;
+import io.edurt.datacap.service.annotation.SendNotification;
 import io.edurt.datacap.service.body.FilterBody;
 import io.edurt.datacap.service.body.PipelineFieldBody;
 import io.edurt.datacap.service.body.adhoc.Adhoc;
@@ -43,6 +44,7 @@ import io.edurt.datacap.service.entity.UserEntity;
 import io.edurt.datacap.service.enums.ColumnMode;
 import io.edurt.datacap.service.enums.ColumnType;
 import io.edurt.datacap.service.enums.CreatedMode;
+import io.edurt.datacap.service.enums.NotificationType;
 import io.edurt.datacap.service.enums.QueryMode;
 import io.edurt.datacap.service.enums.SyncMode;
 import io.edurt.datacap.service.initializer.InitializerConfigure;
@@ -114,6 +116,7 @@ public class DataSetServiceImpl
 
     @Transactional
     @Override
+    @SendNotification(type = NotificationType.CREATE)
     public CommonResponse<DataSetEntity> saveOrUpdate(BaseRepository<DataSetEntity, Long> repository, DataSetEntity configure)
     {
         UserEntity user = UserDetailsService.getUser();

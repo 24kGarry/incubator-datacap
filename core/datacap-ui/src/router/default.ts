@@ -354,6 +354,14 @@ const createAdminRouter = (router: any) => {
                     isRoot: false
                 },
                 component: () => import('@/views/pages/admin/wofkflow/WorkflowInfo.vue')
+            },
+            {
+                path: 'notify',
+                meta: {
+                    title: 'common.notify',
+                    isRoot: false
+                },
+                component: () => import('@/views/pages/admin/notify/NotifyHome.vue')
             }
         ]
     }

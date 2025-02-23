@@ -1,4 +1,5 @@
-USE `datacap`;
+USE
+`datacap`;
 
 DROP TABLE IF EXISTS `datacap_metadata_table_database_relation`;
 DROP TABLE IF EXISTS `datacap_metadata_table`;
@@ -14,16 +15,18 @@ WHERE id = 11;
 
 CREATE TABLE `datacap_notification`
 (
-    id          BIGINT AUTO_INCREMENT NOT NULL,
-    name        VARCHAR(255)          NULL,
-    code        VARCHAR(255)          NULL,
-    active      BIT(1)                NULL,
-    create_time datetime              NULL,
-    update_time datetime              NULL,
-    content     VARCHAR(255)          NOT NULL,
-    type        VARCHAR(255)          NOT NULL,
-    is_read     BIT(1)                NOT NULL,
-    user_id     BIGINT                NULL,
+    id            BIGINT AUTO_INCREMENT NOT NULL,
+    name          VARCHAR(255) NULL,
+    code          VARCHAR(255) NULL,
+    active        BIT(1) NULL,
+    create_time   datetime NULL,
+    update_time   datetime NULL,
+    content       VARCHAR(255) NOT NULL,
+    type          VARCHAR(255) NOT NULL,
+    is_read       BIT(1)       NOT NULL DEFAULT FALSE,
+    user_id       BIGINT NULL,
+    original_id   BIGINT NULL,
+    original_type VARCHAR(255) NULL,
     CONSTRAINT pk_datacap_notification PRIMARY KEY (id)
 );
 
@@ -32,3 +35,6 @@ ALTER TABLE `datacap_notification`
         FOREIGN KEY (user_id)
             REFERENCES datacap_user (id)
             ON DELETE CASCADE;
+
+ALTER TABLE `datacap_user`
+    ADD NOTIFICATION_TYPES VARCHAR(200);

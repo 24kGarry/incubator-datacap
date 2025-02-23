@@ -2,6 +2,7 @@ package io.edurt.datacap.service.entity;
 
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.view.EntityView;
 import io.edurt.datacap.service.converter.AvatarConverter;
@@ -102,5 +103,5 @@ public class UserEntity
     @Column(name = "notification_types")
     @JsonView(value = {EntityView.NoneView.class})
     @Convert(converter = ListConverter.class)
-    private List<String> notificationTypes;
+    private List<String> notificationTypes = Lists.newArrayList();
 }

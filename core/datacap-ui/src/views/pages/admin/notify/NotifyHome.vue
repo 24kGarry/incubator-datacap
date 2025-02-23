@@ -1,0 +1,126 @@
+<template>
+  <ShadcnCard>
+    <template #title>
+      <div class="flex items-center justify-between p-2">
+        <div class="flex items-center">
+          <ShadcnIcon icon="Bell" class="w-5 h-5 text-gray-600"/>
+          <div class="ml-2 font-normal text-sm">{{ $t('notify.text.center') }}</div>
+        </div>
+      </div>
+    </template>
+
+    <div class="min-h-screen divide-y divide-gray-200 relative">
+      <ShadcnSpin v-if="loading" fixed/>
+
+      <div v-else>
+        <div v-for="message in messages"
+             class="p-3 transition-colors border-b"
+             :key="message.code"
+             :class="{ 'bg-blue-50': !message.isRead }">
+          <div class="flex items-start">
+            <div class="ml-3 flex-1">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-medium text-gray-900">{{ $t(`common.${ message.originalType?.toLowerCase() }`) }}</div>
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs text-gray-500">{{ message?.createTime }}</span>
+
+                  <ShadcnDropdown trigger="click" position="right">
+                    <template #trigger>
+                      <ShadcnButton circle size="small">
+                        <ShadcnIcon icon="Cog" size="15"/>
+                      </ShadcnButton>
+                    </template>
+                    <ShadcnDropdownItem :disabled="message.isRead" @on-click="handleMarkAsRead(message)">
+                      {{ $t('notify.text.markAsRead') }}
+                    </ShadcnDropdownItem>
+                    <ShadcnDropdownItem @on-click="handleDelete(message)">
+                      {{ $t('notify.text.delete') }}
+                    </ShadcnDropdownItem>
+                  </ShadcnDropdown>
+                </div>
+              </div>
+
+              <div class="mt-1 text-sm text-gray-600">
+                <template v-if="message?.originalType === 'DATASET' && message?.type === 'CREATE'">
+                  {{ $t('notify.text.datasetCreated').replace('$VALUE', message.original?.name) }}
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ShadcnCard>
+</template>
+
+<script setup lang="ts">
+import { getCurrentInstance, ref } from 'vue'
+import NotificationService from '@/services/notification'
+import { FilterModel } from '@/model/filter.ts'
+
+const { proxy } = getCurrentInstance()!
+
+const filter: FilterModel = new FilterModel()
+const loading = ref(false)
+const messages = ref<any[]>([])
+
+const handleMarkAsRead = (message: any) => {
+  const { id, code } = message
+  const playload = {
+    id,
+    code,
+    isRead: true
+  }
+  NotificationService.saveOrUpdate(playload)
+                     .then(response => {
+                       if (response.status && response.data) {
+                         fetchMessages()
+                       }
+                       else {
+                         // @ts-ignore
+                         proxy.$Message.error({
+                           content: response.message,
+                           showIcon: true
+                         })
+                       }
+                     })
+}
+
+const handleDelete = async (message: any) => {
+  NotificationService.deleteByCode(message.code)
+                     .then(response => {
+                       if (response.status) {
+                         fetchMessages()
+                       }
+                       else {
+                         // @ts-ignore
+                         proxy.$Message.error({
+                           content: response.message,
+                           showIcon: true
+                         })
+                       }
+                     })
+}
+
+const fetchMessages = async () => {
+  loading.value = true
+  try {
+    const response = await NotificationService.getAll(filter)
+    if (response.status && response.data) {
+      messages.value = response.data?.content
+    }
+    else {
+      // @ts-ignore
+      proxy.$Message.error({
+        content: response.message,
+        showIcon: true
+      })
+    }
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+fetchMessages()
+</script>
