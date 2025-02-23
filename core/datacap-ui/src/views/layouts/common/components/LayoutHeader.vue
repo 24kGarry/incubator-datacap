@@ -62,6 +62,13 @@
           <div class="mt-1">
             <LanguageSwitcher @changeLanguage="onChangeLanguage($event)"/>
           </div>
+
+          <div class="mt-2.5">
+            <ShadcnLink link="/admin/notify">
+              <ShadcnIcon icon="Bell" :size="20"/>
+            </ShadcnLink>
+          </div>
+
           <!-- User Info -->
           <ShadcnSpace v-if="isLoggedIn">
             <ShadcnButton to="/auth/signin">
