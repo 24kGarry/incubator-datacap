@@ -1,6 +1,7 @@
 package io.edurt.datacap.service.aspect;
 
 import com.google.common.collect.Lists;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.response.CommonResponse;
 import io.edurt.datacap.notify.NotifyService;
 import io.edurt.datacap.notify.model.NotifyRequest;
@@ -26,6 +27,7 @@ import java.util.Optional;
 @Aspect
 @Component
 @Slf4j
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2"})
 public class NotificationAspect
 {
     private final NotificationRepository repository;

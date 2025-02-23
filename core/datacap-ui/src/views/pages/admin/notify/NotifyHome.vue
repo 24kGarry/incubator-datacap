@@ -67,6 +67,18 @@
           </div>
         </div>
       </div>
+
+      <ShadcnPagination v-if="messages.length > 0"
+                        v-model="pageIndex"
+                        class="py-2"
+                        show-total
+                        show-sizer
+                        :page-size="pageSize"
+                        :total="dataCount"
+                        @on-change="onPageChange"
+                        @on-prev="onPageChange"
+                        @on-next="onPageChange"
+                        @on-change-size="onSizeChange"/>
     </div>
   </ShadcnCard>
 </template>
@@ -81,6 +93,9 @@ const { proxy } = getCurrentInstance()!
 const filter: FilterModel = new FilterModel()
 const loading = ref(false)
 const messages = ref<any[]>([])
+const pageIndex = ref<number>(1)
+const pageSize = ref<number>(10)
+const dataCount = ref<number>(0)
 
 const handleMarkAsRead = (message: any) => {
   const { id, code } = message
@@ -120,12 +135,17 @@ const handleDelete = async (message: any) => {
                      })
 }
 
-const fetchMessages = async () => {
+const fetchMessages = async (value: number = 1) => {
+  filter.page = value
+  filter.size = pageSize.value
   loading.value = true
   try {
     const response = await NotificationService.getAll(filter)
     if (response.status && response.data) {
-      messages.value = response.data?.content
+      messages.value = response.data.content
+      dataCount.value = response.data.total
+      pageSize.value = response.data.size
+      pageIndex.value = response.data.page
     }
     else {
       // @ts-ignore
@@ -138,6 +158,15 @@ const fetchMessages = async () => {
   finally {
     loading.value = false
   }
+}
+
+const onPageChange = (value: number) => {
+  fetchMessages(value)
+}
+
+const onSizeChange = (value: number) => {
+  pageSize.value = value
+  fetchMessages(pageIndex.value)
 }
 
 fetchMessages()
