@@ -4,8 +4,8 @@ import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Key
 import com.google.inject.TypeLiteral
-import io.edurt.datacap.notify.Notify
 import io.edurt.datacap.notify.NotifyManager
+import io.edurt.datacap.notify.NotifyService
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
@@ -24,9 +24,9 @@ class DingTalkModuleTest
     @Test
     fun test()
     {
-        val notify: Notify? = injector?.getInstance(Key.get(object : TypeLiteral<Set<Notify>>()
+        val notifyService: NotifyService? = injector?.getInstance(Key.get(object : TypeLiteral<Set<NotifyService>>()
         {}))
             ?.first { it.name() == name }
-        assertNotNull(notify)
+        assertNotNull(notifyService)
     }
 }

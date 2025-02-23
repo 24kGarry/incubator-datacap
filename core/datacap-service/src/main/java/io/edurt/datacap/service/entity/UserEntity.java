@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.view.EntityView;
 import io.edurt.datacap.service.converter.AvatarConverter;
+import io.edurt.datacap.service.converter.ListConverter;
 import io.edurt.datacap.service.converter.UserEditorConverter;
 import io.edurt.datacap.service.entity.convert.AvatarEntity;
 import io.edurt.datacap.service.entity.itransient.user.UserEditorEntity;
@@ -97,4 +98,9 @@ public class UserEntity
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @JsonView(value = {EntityView.NoneView.class})
     private List<SourceEntity> sources;
+
+    @Column(name = "notification_types")
+    @JsonView(value = {EntityView.NoneView.class})
+    @Convert(converter = ListConverter.class)
+    private List<String> notificationTypes;
 }

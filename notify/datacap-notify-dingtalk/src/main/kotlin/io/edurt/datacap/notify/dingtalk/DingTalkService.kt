@@ -1,10 +1,10 @@
 package io.edurt.datacap.notify.dingtalk
 
-import io.edurt.datacap.notify.Notify
+import io.edurt.datacap.notify.NotifyService
 import io.edurt.datacap.notify.model.NotifyRequest
 import io.edurt.datacap.notify.model.NotifyResponse
 
-class DingTalkNotify : Notify
+class DingTalkService : NotifyService
 {
     override fun send(request: NotifyRequest): NotifyResponse
     {

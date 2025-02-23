@@ -9,7 +9,8 @@ public enum PluginType
     EXECUTOR("Executor"),
     SCHEDULER("Scheduler"),
     CONVERT("Convert"),
-    FILESYSTEM("FileSystem");
+    FILESYSTEM("FileSystem"),
+    NOTIFY("Notify");
 
     private final String name;
 
