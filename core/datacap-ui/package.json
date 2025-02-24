@@ -26,6 +26,7 @@
     "clsx": "^2.1.0",
     "lodash": "^4.17.21",
     "md-editor-v3": "^4.12.1",
+    "pinia": "^3.0.1",
     "uuid": "^9.0.1",
     "view-shadcn-ui": "^2025.1.2",
     "vue": "^3.4.21",
@@ -35,8 +36,7 @@
     "vue-router": "^4.3.0",
     "vue3-ace-editor": "^2.2.4",
     "vue3-grid-layout-next": "^1.0.6",
-    "vuedraggable": "^4.1.0",
-    "vuex": "^4.1.0"
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.17.0",

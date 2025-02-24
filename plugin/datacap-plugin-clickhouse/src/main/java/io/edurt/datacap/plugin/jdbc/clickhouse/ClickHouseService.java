@@ -1,7 +1,5 @@
 package io.edurt.datacap.plugin.jdbc.clickhouse;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.spi.PluginService;
@@ -9,7 +7,6 @@ import io.edurt.datacap.spi.generator.column.CreateColumn;
 import io.edurt.datacap.spi.generator.definition.ColumnDefinition;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.model.Configure;
-import io.edurt.datacap.spi.model.Pagination;
 import io.edurt.datacap.spi.model.Response;
 import lombok.extern.slf4j.Slf4j;
 
@@ -230,56 +227,6 @@ public class ClickHouseService
                 configure,
                 definition
         );
-    }
-
-    @Override
-    public Pagination getPagination(Configure configure, TableDefinition definition)
-    {
-        try {
-            /*
-             * {0} 数据库
-             * {1} 数据表
-             * {2} 页数
-             * {3} 每页大小
-             */
-            String sql = "SELECT\n" +
-                    "    {3} as object_size,\n" +
-                    "    {2} as object_page,\n" +
-                    "    total,\n" +
-                    "    ceil(total / {3}) as object_total_pages,\n" +
-                    "    if({2} > 1, 1, 0) as object_has_previous,\n" +
-                    "    if(({3} * {2}) < total, 1, 0) as object_has_next,\n" +
-                    "    ({2} - 1) * {3} + 1 as object_start_index,\n" +
-                    "    least(({2} * {3}), total) as object_end_index\n" +
-                    "FROM (\n" +
-                    "    SELECT count() as total\n" +
-                    "    FROM `{0}`.`{1}`\n" +
-                    ")";
-
-            // 强制指定为 JsonConvert
-            configure.setFormat("JsonConvert");
-            Response response = this.getResponse(
-                    sql.replace("{0}", definition.getDatabase())
-                            .replace("{1}", definition.getName())
-                            .replace("{2}", String.valueOf(definition.getPagination().getPage()))
-                            .replace("{3}", String.valueOf(definition.getPagination().getSize())),
-                    configure,
-                    definition
-            );
-            Preconditions.checkArgument(response.getIsSuccessful(), response.getMessage());
-
-            ObjectNode node = (ObjectNode) response.getColumns().get(0);
-            return Pagination.create(node.get("object_size").asInt(), node.get("object_page").asInt())
-                    .total(node.get("total").asInt())
-                    .pages(node.get("object_total_pages").asInt())
-                    .hasPrevious(node.get("object_has_previous").asInt() == 1)
-                    .hasNext(node.get("object_has_next").asInt() == 1)
-                    .startIndex(node.get("object_start_index").asInt())
-                    .endIndex(node.get("object_end_index").asInt());
-        }
-        catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
     }
 
     @Override

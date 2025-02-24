@@ -17,6 +17,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Formula;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.CascadeType;
@@ -104,4 +105,8 @@ public class UserEntity
     @JsonView(value = {EntityView.NoneView.class})
     @Convert(converter = ListConverter.class)
     private List<String> notificationTypes = Lists.newArrayList();
+
+    @Formula("(SELECT COUNT(n.id) FROM datacap_notification n WHERE n.user_id = id AND n.is_read = false)")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
+    private Long unreadCount;
 }
