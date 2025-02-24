@@ -95,13 +95,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-
+import { useUserStore } from '@/stores/user'
 import UserService from '@/services/user'
 import CaptchaService from '@/services/captcha'
-
 import CommonUtils from '@/utils/common'
-import { HttpUtils } from '@/utils/http'
-
 import router from '@/router'
 import { createDefaultRouter } from '@/router/default'
 import BaseLayout from '@/views/layouts/base/BaseLayout.vue'
@@ -117,6 +114,11 @@ interface Props
 export default defineComponent({
   name: 'AuthSignin',
   components: { BaseLayout },
+  setup()
+  {
+    const userStore = useUserStore()
+    return { userStore }
+  },
   data()
   {
     return {
@@ -157,48 +159,52 @@ export default defineComponent({
         showIcon: true
       })
     },
-    onSubmit()
+    async onSubmit()
     {
-      this.submitting = true
-      UserService.signin(this.formState as any)
-                 .then(response => {
-                   if (response.status) {
-                     localStorage.setItem(CommonUtils.token, JSON.stringify(response.data))
-                     // Get user information and user menus
-                     const client = new HttpUtils().getAxios()
-                     client.all([UserService.getMenus(), UserService.getInfo()])
-                           .then(client.spread((fetchMenu, fetchInfo) => {
-                             if (fetchMenu.status && fetchInfo.status) {
-                               localStorage.setItem(CommonUtils.menu, JSON.stringify(fetchMenu.data))
-                               createDefaultRouter(router)
-                               localStorage.setItem(CommonUtils.userEditorConfigure, JSON.stringify(fetchInfo.data.editorConfigure))
-                               router.push('/home')
-                             }
-                             else {
-                               if (!fetchMenu.status) {
-                                 this.$Message.error({
-                                   content: fetchMenu.message,
-                                   showIcon: true
-                                 })
-                               }
-                               if (!fetchInfo.status) {
-                                 this.$Message.error({
-                                   content: fetchInfo.message,
-                                   showIcon: true
-                                 })
-                               }
-                             }
-                           }))
-                   }
-                   else {
-                     this.$Message.error({
-                       content: response.message,
-                       showIcon: true
-                     })
-                     this.initCaptcha()
-                   }
-                 })
-                 .finally(() => this.submitting = false)
+      try {
+        this.submitting = true
+        const loginResponse = await UserService.signin(this.formState as any)
+
+        if (loginResponse.status) {
+          localStorage.setItem(CommonUtils.token, JSON.stringify(loginResponse.data))
+
+          // 获取用户信息和菜单
+          const menuResponse = await UserService.getMenus()
+          if (menuResponse.status) {
+            this.userStore.updateMenu(menuResponse.data)
+            // 更新路由并跳转
+            createDefaultRouter(router)
+            router.push('/home')
+          }
+          else {
+            if (!menuResponse.status) {
+              this.$Message.error({
+                content: menuResponse.message,
+                showIcon: true
+              })
+            }
+            this.userStore.logout()
+          }
+        }
+        else {
+          this.$Message.error({
+            content: loginResponse.message,
+            showIcon: true
+          })
+          this.initCaptcha()
+        }
+      }
+      catch (error) {
+        console.error('Login error:', error)
+        this.$Message.error({
+          content: 'Login failed',
+          showIcon: true
+        })
+        this.initCaptcha()
+      }
+      finally {
+        this.submitting = false
+      }
     }
   }
 })

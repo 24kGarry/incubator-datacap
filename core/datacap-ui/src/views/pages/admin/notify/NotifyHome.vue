@@ -87,6 +87,7 @@
 import { getCurrentInstance, ref } from 'vue'
 import NotificationService from '@/services/notification'
 import { FilterModel } from '@/model/filter.ts'
+import { useUserStore } from '@/stores/user'
 
 const { proxy } = getCurrentInstance()!
 
@@ -96,18 +97,20 @@ const messages = ref<any[]>([])
 const pageIndex = ref<number>(1)
 const pageSize = ref<number>(10)
 const dataCount = ref<number>(0)
+const userStore = useUserStore()
 
 const handleMarkAsRead = (message: any) => {
   const { id, code } = message
-  const playload = {
+  const payload = {
     id,
     code,
     isRead: true
   }
-  NotificationService.saveOrUpdate(playload)
+  NotificationService.saveOrUpdate(payload)
                      .then(response => {
                        if (response.status && response.data) {
                          fetchMessages()
+                         userStore.fetchUserInfo()
                        }
                        else {
                          // @ts-ignore

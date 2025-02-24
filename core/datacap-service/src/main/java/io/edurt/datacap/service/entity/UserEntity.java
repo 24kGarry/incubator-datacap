@@ -108,5 +108,5 @@ public class UserEntity
 
     @Formula("(SELECT COUNT(n.id) FROM datacap_notification n WHERE n.user_id = id AND n.is_read = false)")
     @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
-    private Long unreadNotificationCount;
+    private Long unreadCount;
 }

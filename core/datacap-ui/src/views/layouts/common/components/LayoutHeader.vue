@@ -14,7 +14,7 @@
           </ShadcnLink>
         </div>
 
-        <ShadcnLayoutHeader>
+        <ShadcnLayoutHeader class="ml-6">
           <ShadcnMenu direction="horizontal">
             <div v-for="item in activeMenus" :key="item.id">
               <ShadcnMenuSub v-if="item.children" :name="item.id">
@@ -63,14 +63,21 @@
             <LanguageSwitcher @changeLanguage="onChangeLanguage($event)"/>
           </div>
 
-          <div class="mt-2.5 ">
+          <div v-if="userInfo" class="mt-2.5">
             <ShadcnLink link="/admin/notify">
-              <ShadcnIcon icon="Bell" class="hover:text-blue-400" :size="20"/>
+              <template v-if="userInfo?.unreadCount > 0">
+                <ShadcnBadge dot>
+                  <ShadcnIcon icon="Bell" class="hover:text-blue-400" :size="20"/>
+                </ShadcnBadge>
+              </template>
+              <template v-else>
+                <ShadcnIcon icon="Bell" class="hover:text-blue-400" :size="20"/>
+              </template>
             </ShadcnLink>
           </div>
 
           <!-- User Info -->
-          <ShadcnSpace v-if="isLoggedIn">
+          <ShadcnSpace v-if="!isLoggedIn">
             <ShadcnButton to="/auth/signin">
               {{ $t('user.common.signin') }}
             </ShadcnButton>
@@ -83,14 +90,14 @@
               <template #trigger>
                 <ShadcnAvatar class="mt-1"
                               style="width: 2rem;"
-                              :src="userInfo.avatar"
-                              :alt="userInfo.username">
+                              :src="userInfo?.avatarConfigure?.path"
+                              :alt="userInfo?.username">
                 </ShadcnAvatar>
               </template>
 
               <ShadcnDropdownItem>
                 <div class="flex flex-col space-y-1">
-                  <p class="text-sm font-medium leading-none text-center">{{ userInfo.username }}</p>
+                  <p class="text-sm font-medium leading-none text-center">{{ userInfo?.username }}</p>
                   <p class="text-xs leading-none text-muted-foreground"></p>
                 </div>
               </ShadcnDropdownItem>
