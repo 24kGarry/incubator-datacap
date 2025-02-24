@@ -1270,40 +1270,48 @@ public interface PluginService
              * {4} 筛选条件
              */
             String sql = "SELECT\n" +
-                    "   {3} as object_size,\n" +
-                    "   {2} as object_page,\n" +
-                    "   @total := CAST((SELECT COUNT(1) FROM {0}.{1}) AS SIGNED) as object_total,\n" +
-                    "   CEIL(@total / {3}) as object_total_pages,\n" +
-                    "   IF({2} > 1, 1, 0) as object_has_previous,\n" +
-                    "   IF(({3} * {2}) < @total, 1, 0) as object_has_next,\n" +
-                    "   ({2} - 1) * {3} + 1 as object_start_index,\n" +
-                    "   LEAST(CAST(({2} * {3}) AS SIGNED), CAST(@total AS SIGNED)) as object_end_index\n" +
-                    "FROM DUAL;";
+                    "    {3} as object_size,\n" +
+                    "    {2} as object_page,\n" +
+                    "    total as object_total,\n" +
+                    "    ceil(total / {3}) as object_total_pages,\n" +
+                    "    if({2} > 1, 1, 0) as object_has_previous,\n" +
+                    "    if(({3} * {2}) < total, 1, 0) as object_has_next,\n" +
+                    "    ({2} - 1) * {3} + 1 as object_start_index,\n" +
+                    "    least(({2} * {3}), total) as object_end_index\n" +
+                    "FROM (\n" +
+                    "    SELECT count(1) as total\n" +
+                    "    FROM `{0}`.`{1}`\n" +
+                    ") t";
 
-            // 强制指定为 JsonConvert
-            configure.setFormat("JsonConvert");
-            Response response = this.getResponse(
-                    sql.replace("{0}", definition.getDatabase())
-                            .replace("{1}", definition.getName())
-                            .replace("{2}", String.valueOf(definition.getPagination().getPage()))
-                            .replace("{3}", String.valueOf(definition.getPagination().getSize())),
-                    configure,
-                    definition
-            );
-            Preconditions.checkArgument(response.getIsSuccessful(), response.getMessage());
-
-            ObjectNode node = (ObjectNode) response.getColumns().get(0);
-            return Pagination.create(node.get("object_size").asInt(), node.get("object_page").asInt())
-                    .total(node.get("object_total").asInt())
-                    .pages(node.get("object_total_pages").asInt())
-                    .hasPrevious(node.get("object_has_previous").asInt() == 1)
-                    .hasNext(node.get("object_has_next").asInt() == 1)
-                    .startIndex(node.get("object_start_index").asInt())
-                    .endIndex(node.get("object_end_index").asInt());
+            return this.formatPagination(configure, sql, definition);
         }
         catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    default Pagination formatPagination(Configure configure, String sql, TableDefinition definition)
+    {
+        // 强制指定为 JsonConvert
+        configure.setFormat("JsonConvert");
+        Response response = this.getResponse(
+                sql.replace("{0}", definition.getDatabase())
+                        .replace("{1}", definition.getName())
+                        .replace("{2}", String.valueOf(definition.getPagination().getPage()))
+                        .replace("{3}", String.valueOf(definition.getPagination().getSize())),
+                configure,
+                definition
+        );
+        Preconditions.checkArgument(response.getIsSuccessful(), response.getMessage());
+
+        ObjectNode node = (ObjectNode) response.getColumns().get(0);
+        return Pagination.create(node.get("object_size").asInt(), node.get("object_page").asInt())
+                .total(node.get("object_total").asInt())
+                .pages(node.get("object_total_pages").asInt())
+                .hasPrevious(node.get("object_has_previous").asInt() == 1)
+                .hasNext(node.get("object_has_next").asInt() == 1)
+                .startIndex(node.get("object_start_index").asInt())
+                .endIndex(node.get("object_end_index").asInt());
     }
 
     default List<String> formatPrimaryKeys(Configure configure, String database, String table)

@@ -63,9 +63,9 @@
             <LanguageSwitcher @changeLanguage="onChangeLanguage($event)"/>
           </div>
 
-          <div class="mt-2.5">
+          <div class="mt-2.5 ">
             <ShadcnLink link="/admin/notify">
-              <ShadcnIcon icon="Bell" :size="20"/>
+              <ShadcnIcon icon="Bell" class="hover:text-blue-400" :size="20"/>
             </ShadcnLink>
           </div>
 
@@ -119,49 +119,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
-
+import { defineComponent, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
 import { TokenUtils } from '@/utils/token'
-import { ObjectUtils } from '@/utils/object'
-import CommonUtils from '@/utils/common'
-
 import router from '@/router'
 import { createDefaultRouter } from '@/router/default'
-import { AuthResponse } from '@/model/user/response/auth'
-
 import LanguageSwitcher from '@/views/layouts/common/components/components/LanguageSwitcher.vue'
-
-interface NavigationItem
-{
-  id: number
-  i18nKey: string
-  url: string
-  description: string
-  icon: string
-  children: NavigationItem[] | undefined
-}
 
 export default defineComponent({
   name: 'LayoutHeader',
   setup()
   {
-    const user = TokenUtils.getAuthUser()
-    let userInfo = ref<AuthResponse>({} as AuthResponse)
-    if (user) {
-      userInfo.value = user
-    }
-    const isLoggedIn = ref(ObjectUtils.isEmpty(userInfo.value))
+    const userStore = useUserStore()
+    const { userInfo, isLoggedIn, menu: activeMenus } = storeToRefs(userStore)
 
-    const menu = TokenUtils.getUserMenu()
-    let activeMenus = ref(Array<NavigationItem>())
-    if (ObjectUtils.isNotEmpty(menu)) {
-      activeMenus.value = menu
-    }
+    onMounted(async () => {
+      if (TokenUtils.getAuthUser()) {
+        await userStore.fetchUserInfo()
+      }
+    })
 
     const logout = () => {
-      localStorage.removeItem(CommonUtils.token)
-      localStorage.removeItem(CommonUtils.menu)
-      localStorage.removeItem(CommonUtils.userEditorConfigure)
+      userStore.logout()
       createDefaultRouter(router)
       router.push('/auth/signin')
     }
