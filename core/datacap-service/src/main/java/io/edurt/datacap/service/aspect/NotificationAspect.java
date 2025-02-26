@@ -10,6 +10,7 @@ import io.edurt.datacap.service.annotation.SendNotification;
 import io.edurt.datacap.service.entity.BaseEntity;
 import io.edurt.datacap.service.entity.NotificationEntity;
 import io.edurt.datacap.service.entity.UserEntity;
+import io.edurt.datacap.service.enums.NotificationType;
 import io.edurt.datacap.service.repository.NotificationRepository;
 import io.edurt.datacap.service.repository.UserRepository;
 import io.edurt.datacap.service.security.UserDetailsService;
@@ -82,6 +83,12 @@ public class NotificationAspect
                 .original(configure)
                 .isRead(false)
                 .build();
+
+        // 只有为动态的情况下抽取 configure 中的 code 字段是否有值来标记新建和更新
+        if (sendNotification.type().equals(NotificationType.DYNAMIC) && configure instanceof BaseEntity) {
+            entity.setType(((BaseEntity) configure).getCode() == null ? NotificationType.CREATE.name() : NotificationType.UPDATE.name());
+        }
+
         repository.save(entity);
     }
 }

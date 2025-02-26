@@ -1,7 +1,7 @@
 <template>
   <ShadcnCard>
     <template #title>
-      <div class="flex items-center justify-between p-2">
+      <div class="flex items-center justify-between">
         <div class="flex items-center">
           <ShadcnIcon icon="Bell" class="w-5 h-5 text-gray-600"/>
           <div class="ml-2 font-normal text-sm">{{ $t('notify.text.center') }}</div>
@@ -61,6 +61,9 @@
               <div class="mt-1 text-sm text-gray-600">
                 <template v-if="message?.originalType === 'DATASET' && message?.type === 'CREATE'">
                   {{ $t('notify.text.datasetCreated').replace('$VALUE', message.original?.name) }}
+                </template>
+                <template v-else-if="message?.originalType === 'DATASET' && message?.type === 'UPDATE'">
+                  {{ $t('notify.text.datasetUpdated').replace('$VALUE', message.original?.name) }}
                 </template>
               </div>
             </div>

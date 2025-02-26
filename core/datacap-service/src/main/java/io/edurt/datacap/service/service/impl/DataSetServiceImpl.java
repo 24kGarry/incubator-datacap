@@ -116,7 +116,7 @@ public class DataSetServiceImpl
 
     @Transactional
     @Override
-    @SendNotification(type = NotificationType.CREATE)
+    @SendNotification(type = NotificationType.DYNAMIC)
     public CommonResponse<DataSetEntity> saveOrUpdate(BaseRepository<DataSetEntity, Long> repository, DataSetEntity configure)
     {
         UserEntity user = UserDetailsService.getUser();
