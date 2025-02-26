@@ -291,16 +291,14 @@ public class UserServiceImpl
     }
 
     @Override
-    public CommonResponse<Long> changeEditorConfigure(UserEditorEntity configure)
+    public CommonResponse<UserEntity> changeEditorConfigure(UserEditorEntity configure)
     {
-        Optional<UserEntity> userOptional = this.userRepository.findById(UserDetailsService.getUser().getId());
-        if (!userOptional.isPresent()) {
-            return CommonResponse.failure(ServiceState.USER_NOT_FOUND);
-        }
-        UserEntity user = userOptional.get();
-        user.setEditorConfigure(configure);
-        this.userRepository.save(user);
-        return CommonResponse.success(user.getId());
+        return userRepository.findByCode(UserDetailsService.getUser().getCode())
+                .map(value -> {
+                    value.setEditorConfigure(configure);
+                    return CommonResponse.success(userRepository.save(value));
+                })
+                .orElseGet(() -> CommonResponse.failure(ServiceState.USER_NOT_FOUND));
     }
 
     @Override

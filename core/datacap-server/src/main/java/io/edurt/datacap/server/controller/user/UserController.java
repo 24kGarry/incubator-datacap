@@ -108,7 +108,7 @@ public class UserController
     }
 
     @PutMapping(value = "changeEditorConfigure")
-    public CommonResponse<Long> changeEditorConfigure(@Validated @RequestBody UserEditorEntity configure)
+    public CommonResponse<UserEntity> changeEditorConfigure(@Validated @RequestBody UserEditorEntity configure)
     {
         return this.service.changeEditorConfigure(configure);
     }
