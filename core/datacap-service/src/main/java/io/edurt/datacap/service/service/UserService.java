@@ -35,7 +35,7 @@ public interface UserService
 
     CommonResponse<PageEntity<UserEntity>> getAll(FilterBody filter);
 
-    CommonResponse<Long> changeEditorConfigure(UserEditorEntity configure);
+    CommonResponse<UserEntity> changeEditorConfigure(UserEditorEntity configure);
 
     CommonResponse<AvatarEntity> uploadAvatar(UploadBody configure);
 }

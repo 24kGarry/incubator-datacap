@@ -1,5 +1,6 @@
 package io.edurt.datacap.service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.google.common.collect.Lists;
@@ -99,6 +100,7 @@ public class UserEntity
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @JsonView(value = {EntityView.NoneView.class})
+    @JsonIgnore
     private List<SourceEntity> sources;
 
     @Column(name = "notification_types")

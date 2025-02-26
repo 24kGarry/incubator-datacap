@@ -4,9 +4,7 @@
       <LayoutHeader/>
       <div class="container my-2 min-h-screen">
         <ShadcnLayoutWrapper>
-          <ShadcnLayoutSider class="mr-4">
-            <LayoutSidebar/>
-          </ShadcnLayoutSider>
+          <LayoutSidebar/>
           <ShadcnLayoutMain class="ml-20">
             <ShadcnLayoutContent>
               <RouterView/>

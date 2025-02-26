@@ -15,9 +15,16 @@ public class ListConverter
     @Override
     public String convertToDatabaseColumn(List map)
     {
+        // 处理 null 值
+        if (map == null || map.isEmpty()) {
+            return null;
+        }
+
         List<String> values = Lists.newArrayList();
         for (Object state : map) {
-            values.add(state.toString());
+            if (state != null) {  // 添加 null 检查
+                values.add(state.toString());
+            }
         }
         return String.join(",", values);
     }
@@ -26,10 +33,21 @@ public class ListConverter
     public List convertToEntityAttribute(String s)
     {
         if (StringUtils.isEmpty(s)) {
-            return null;
+            return Lists.newArrayList();  // 返回空列表而不是 null
         }
         else {
-            return Lists.newArrayList(Arrays.stream(s.split(",")).map(DataSetState::valueOf).toArray(DataSetState[]::new));
+            try {
+                // 尝试转换为 DataSetState
+                return Lists.newArrayList(
+                        Arrays.stream(s.split(","))
+                                .map(DataSetState::valueOf)
+                                .toArray(DataSetState[]::new)
+                );
+            }
+            catch (IllegalArgumentException e) {
+                // 如果转换失败，至少返回原始字符串列表
+                return Lists.newArrayList(s.split(","));
+            }
         }
     }
 }
