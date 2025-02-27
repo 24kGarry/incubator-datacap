@@ -38,7 +38,7 @@
           <div class="flex items-start">
             <div class="ml-3 flex-1">
               <div class="flex items-center justify-between">
-                <div class="text-sm font-medium text-gray-900">{{ $t(`common.${ message.originalType?.toLowerCase() }`) }}</div>
+                <div class="text-sm font-medium text-gray-900">{{ $t(`common.${ message.entityType?.toLowerCase() }`) }}</div>
                 <div class="flex items-center space-x-2">
                   <span class="text-xs text-gray-500">{{ message?.createTime }}</span>
 
@@ -59,12 +59,7 @@
               </div>
 
               <div class="mt-1 text-sm text-gray-600">
-                <template v-if="message?.originalType === 'DATASET' && message?.type === 'CREATE'">
-                  {{ $t('notify.text.datasetCreated').replace('$VALUE', message.original?.name) }}
-                </template>
-                <template v-else-if="message?.originalType === 'DATASET' && message?.type === 'UPDATE'">
-                  {{ $t('notify.text.datasetUpdated').replace('$VALUE', message.original?.name) }}
-                </template>
+                <NotifyMessage :message="message"/>
               </div>
             </div>
           </div>
@@ -91,6 +86,7 @@ import { getCurrentInstance, ref } from 'vue'
 import NotificationService from '@/services/notification'
 import { FilterModel } from '@/model/filter.ts'
 import { useUserStore } from '@/stores/user'
+import NotifyMessage from '@/views/pages/admin/notify/components/NotifyMessage.vue'
 
 const { proxy } = getCurrentInstance()!
 

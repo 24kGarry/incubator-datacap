@@ -1,16 +1,13 @@
 package io.edurt.datacap.service.entity;
 
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.view.EntityView;
+import io.edurt.datacap.service.enums.EntityType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Any;
-import org.hibernate.annotations.AnyMetaDef;
-import org.hibernate.annotations.MetaValue;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -18,6 +15,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -51,21 +50,20 @@ public class NotificationEntity
     @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private UserEntity user;
 
-    @Column(name = "original_type", nullable = false, insertable = false, updatable = false)
+    @Column(name = "entity_type")
+    @Enumerated(EnumType.STRING)
     @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
-    private String originalType;
+    private EntityType entityType;
 
-    @Any(metaColumn = @Column(name = "original_type"))
-    @AnyMetaDef(
-            idType = "long",
-            metaType = "string",
-            metaValues = {
-                    @MetaValue(targetEntity = DataSetEntity.class, value = "DATASET"),
-            }
-    )
-    @JoinColumn(name = "original_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Column(name = "entity_code")
     @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
-    @JsonIncludeProperties(value = {"code", "name"})
-    private Object original;
+    private String entityCode;    // 实体编码
+
+    @Column(name = "entity_name")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
+    private String entityName;    // 实体名称
+
+    @Column(name = "entity_exists", nullable = false, columnDefinition = "boolean default true")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
+    private Boolean entityExists = true;
 }

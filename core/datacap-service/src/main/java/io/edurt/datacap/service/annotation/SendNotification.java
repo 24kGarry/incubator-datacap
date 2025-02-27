@@ -1,5 +1,6 @@
 package io.edurt.datacap.service.annotation;
 
+import io.edurt.datacap.service.enums.EntityType;
 import io.edurt.datacap.service.enums.NotificationType;
 
 import java.lang.annotation.ElementType;
@@ -15,7 +16,9 @@ public @interface SendNotification
 
     String content() default "";
 
-    NotificationType type() default NotificationType.CREATE;
+    EntityType entityType() default EntityType.DATASET;
+
+    NotificationType type() default NotificationType.CREATED;
 
     String[] channels() default {};
 }

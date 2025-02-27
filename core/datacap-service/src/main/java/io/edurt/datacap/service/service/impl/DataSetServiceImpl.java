@@ -44,6 +44,7 @@ import io.edurt.datacap.service.entity.UserEntity;
 import io.edurt.datacap.service.enums.ColumnMode;
 import io.edurt.datacap.service.enums.ColumnType;
 import io.edurt.datacap.service.enums.CreatedMode;
+import io.edurt.datacap.service.enums.EntityType;
 import io.edurt.datacap.service.enums.NotificationType;
 import io.edurt.datacap.service.enums.QueryMode;
 import io.edurt.datacap.service.enums.SyncMode;
@@ -54,11 +55,13 @@ import io.edurt.datacap.service.repository.BaseRepository;
 import io.edurt.datacap.service.repository.DataSetColumnRepository;
 import io.edurt.datacap.service.repository.DataSetRepository;
 import io.edurt.datacap.service.repository.DatasetHistoryRepository;
+import io.edurt.datacap.service.repository.NotificationRepository;
 import io.edurt.datacap.service.repository.SourceRepository;
 import io.edurt.datacap.service.security.UserDetailsService;
 import io.edurt.datacap.service.service.DataSetService;
 import io.edurt.datacap.spi.PluginService;
 import io.edurt.datacap.spi.PluginType;
+import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.model.Configure;
 import io.edurt.datacap.spi.model.Response;
 import io.edurt.datacap.sql.EngineType;
@@ -101,8 +104,9 @@ public class DataSetServiceImpl
     private final org.quartz.Scheduler scheduler;
     private final Environment environment;
     private final SourceRepository sourceRepository;
+    private final NotificationRepository notificationRepository;
 
-    public DataSetServiceImpl(DataSetRepository repository, DataSetColumnRepository columnRepository, DatasetHistoryRepository historyRepository, PluginManager pluginManager, InitializerConfigure initializerConfigure, org.quartz.Scheduler scheduler, Environment environment, SourceRepository sourceRepository)
+    public DataSetServiceImpl(DataSetRepository repository, DataSetColumnRepository columnRepository, DatasetHistoryRepository historyRepository, PluginManager pluginManager, InitializerConfigure initializerConfigure, org.quartz.Scheduler scheduler, Environment environment, SourceRepository sourceRepository, NotificationRepository notificationRepository)
     {
         this.repository = repository;
         this.columnRepository = columnRepository;
@@ -112,6 +116,7 @@ public class DataSetServiceImpl
         this.scheduler = scheduler;
         this.environment = environment;
         this.sourceRepository = sourceRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     @Transactional
@@ -295,6 +300,35 @@ public class DataSetServiceImpl
                     return CommonResponse.success(PageEntity.build(historyRepository.findAllByDatasetOrderByCreateTimeDesc(item, pageable)));
                 })
                 .orElse(CommonResponse.failure(String.format("DataSet [ %s ] not found", code)));
+    }
+
+    @Override
+    @Transactional
+    @SendNotification(type = NotificationType.DELETED)
+    public CommonResponse<String> deleteByCode(BaseRepository<DataSetEntity, Long> repository, String code)
+    {
+        return repository.findByCode(code)
+                .map(value -> {
+                    java.util.concurrent.ExecutorService service = Executors.newSingleThreadExecutor();
+                    service.submit(() -> {
+                        // 更新通知状态，标记为无法点击链接
+                        notificationRepository.updateEntityExistsByEntityCodeAndType(
+                                value.getCode(),
+                                EntityType.DATASET,
+                                false
+                        );
+
+                        pluginManager.getPlugin(initializerConfigure.getDataSetConfigure().getType())
+                                .ifPresent(plugin -> {
+                                    PluginService pluginService = plugin.getService(PluginService.class);
+                                    TableDefinition definition = TableDefinition.create(initializerConfigure.getDataSetConfigure().getDatabase(), value.getTableName());
+                                    pluginService.dropTable(getConfigure(initializerConfigure.getDataSetConfigure().getDatabase(), plugin), definition);
+                                });
+                        repository.delete(value);
+                    });
+                    return CommonResponse.success(code);
+                })
+                .orElseGet(() -> CommonResponse.failure(String.format("DataSet [ %s ] not found", code)));
     }
 
     private void completeState(DataSetEntity entity, DataSetState state)

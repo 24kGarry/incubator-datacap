@@ -13,7 +13,7 @@ DELETE
 FROM `datacap_menu`
 WHERE id = 11;
 
-CREATE TABLE `datacap_notification`
+CREATE TABLE datacap_notification
 (
     id            BIGINT AUTO_INCREMENT NOT NULL,
     name          VARCHAR(255) NULL,
@@ -22,11 +22,13 @@ CREATE TABLE `datacap_notification`
     create_time   datetime NULL,
     update_time   datetime NULL,
     content       VARCHAR(255) NOT NULL,
-    type          VARCHAR(255) NOT NULL,
-    is_read       BIT(1)       NOT NULL DEFAULT FALSE,
+    type          VARCHAR(255) NULL,
+    is_read       BIT(1)                DEFAULT 0 NOT NULL,
     user_id       BIGINT NULL,
-    original_id   BIGINT NULL,
-    original_type VARCHAR(255) NULL,
+    entity_type   VARCHAR(255) NULL,
+    entity_code   VARCHAR(255) NULL,
+    entity_name   VARCHAR(255) NULL,
+    entity_exists BIT(1)       NOT NULL DEFAULT TRUE,
     CONSTRAINT pk_datacap_notification PRIMARY KEY (id)
 );
 

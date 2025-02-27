@@ -75,18 +75,28 @@ public class NotificationAspect
 
     private void sendDefaultNotification(SendNotification sendNotification, Object configure)
     {
+        if (configure instanceof String) {
+            configure = BaseEntity.builder()
+                    .code((String) configure)
+                    .name((String) configure)
+                    .build();
+        }
+
         NotificationEntity entity = NotificationEntity.builder()
                 .content(sendNotification.content())
                 .user(UserDetailsService.getUser())
                 .type(sendNotification.type().name())
                 .name(sendNotification.title())
-                .original(configure)
+                .entityCode(configure == null ? null : ((BaseEntity) configure).getCode())
+                .entityName(configure == null ? null : ((BaseEntity) configure).getName())
+                .entityType(sendNotification.entityType())
+                .entityExists(!sendNotification.type().equals(NotificationType.DELETED))
                 .isRead(false)
                 .build();
 
         // 只有为动态的情况下抽取 configure 中的 code 字段是否有值来标记新建和更新
-        if (sendNotification.type().equals(NotificationType.DYNAMIC) && configure instanceof BaseEntity) {
-            entity.setType(((BaseEntity) configure).getCode() == null ? NotificationType.CREATE.name() : NotificationType.UPDATE.name());
+        if (sendNotification.type().equals(NotificationType.DYNAMIC) && configure != null) {
+            entity.setType(((BaseEntity) configure).getCode() == null ? NotificationType.CREATED.name() : NotificationType.UPDATED.name());
         }
 
         repository.save(entity);
