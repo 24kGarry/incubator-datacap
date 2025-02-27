@@ -272,6 +272,10 @@ export default defineComponent({
     {
       this.deleteVisible = opened
       this.contextData = record
+
+      if (!opened) {
+        this.handleInitialize()
+      }
     },
     getState(state: Array<any> | null): string | null
     {

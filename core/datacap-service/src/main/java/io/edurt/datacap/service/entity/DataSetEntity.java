@@ -69,10 +69,6 @@ public class DataSetEntity
     @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String tableName;
 
-    @Column(name = "code")
-    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
-    private String code;
-
     @Column(name = "scheduler")
     @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String scheduler;

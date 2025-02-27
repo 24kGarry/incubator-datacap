@@ -126,6 +126,7 @@ const handleDelete = async (message: any) => {
                      .then(response => {
                        if (response.status) {
                          fetchMessages()
+                         userStore.fetchUserInfo()
                        }
                        else {
                          // @ts-ignore
