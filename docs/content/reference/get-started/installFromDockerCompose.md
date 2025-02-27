@@ -25,13 +25,12 @@ services:
       - ./configure/schema/datacap.sql:/docker-entrypoint-initdb.d/schema.sql
 
   app-datacap:
-    image: qianmoq/datacap:latest
+    image: devliveorg/datacap:latest
     restart: always
     ports:
       - "9099:9099"
     depends_on:
       - app-mysql
-      - app-clickhouse
     volumes:
       - ./configure/docker/application.properties:/opt/app/datacap/configure/application.properties
 ```
@@ -65,7 +64,7 @@ services:
       - CLICKHOUSE_DB=datacap
 
   app-datacap:
-    image: qianmoq/datacap:latest
+    image: devliveorg/datacap:latest
     restart: always
     ports:
       - "9099:9099"
