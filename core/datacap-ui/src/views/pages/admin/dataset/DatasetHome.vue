@@ -87,6 +87,13 @@
                   <span>{{ $t('dataset.common.clearData') }}</span>
                 </div>
               </ShadcnDropdownItem>
+
+              <ShadcnDropdownItem @on-click="visibleDelete(row, true)">
+                <div class="flex items-center space-x-2">
+                  <ShadcnIcon icon="Delete" size="15"/>
+                  <span>{{ $t('dataset.common.delete') }}</span>
+                </div>
+              </ShadcnDropdownItem>
             </ShadcnDropdown>
           </ShadcnSpace>
         </template>
@@ -127,6 +134,11 @@
                 :info="contextData"
                 @close="visibleClearData(null, false)"/>
 
+  <DatasetDelete v-if="deleteVisible"
+                 :is-visible="deleteVisible"
+                 :info="contextData"
+                 @close="visibleDelete(null, false)"/>
+
   <MarkdownPreview v-if="errorVisible && contextData"
                    :is-visible="errorVisible"
                    :content="'```java\n' + contextData.message + '\n```'"
@@ -145,10 +157,11 @@ import DatasetHistory from '@/views/pages/admin/dataset/DatasetHistory.vue'
 import MarkdownPreview from '@/views/components/markdown/MarkdownView.vue'
 import DatasetRebuild from '@/views/pages/admin/dataset/DatasetRebuild.vue'
 import DatasetClear from '@/views/pages/admin/dataset/DatasetClear.vue'
+import DatasetDelete from '@/views/pages/admin/dataset/DatasetDelete.vue'
 
 export default defineComponent({
   name: 'DatasetHome',
-  components: { DatasetClear, DatasetRebuild, MarkdownPreview, DatasetHistory, DatasetSync, DatasetState },
+  components: { DatasetDelete, DatasetClear, DatasetRebuild, MarkdownPreview, DatasetHistory, DatasetSync, DatasetState },
   setup()
   {
     const filter: FilterModel = new FilterModel()
@@ -172,7 +185,8 @@ export default defineComponent({
       historyVisible: false,
       syncDataVisible: false,
       clearDataVisible: false,
-      errorVisible: false
+      errorVisible: false,
+      deleteVisible: false
     }
   },
   created()
@@ -253,6 +267,15 @@ export default defineComponent({
     {
       this.errorVisible = opened
       this.contextData = record
+    },
+    visibleDelete(record: DatasetModel | null, opened: boolean)
+    {
+      this.deleteVisible = opened
+      this.contextData = record
+
+      if (!opened) {
+        this.handleInitialize()
+      }
     },
     getState(state: Array<any> | null): string | null
     {
