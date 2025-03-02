@@ -14,7 +14,7 @@ repo:
   branch: dev
 
 banner:
-  content: 💗 <a href="https://afdian.com/a/devlive-community" target="_blank">DataCap 2024.4.1 is released, 如果喜欢我们的软件，请点击这里支持我们</a> ❤️
+  content: 💗 <a href="https://afdian.com/a/devlive-community" target="_blank">DataCap 2025.1.0 is released, 如果喜欢我们的软件，请点击这里支持我们</a> ❤️
 
 feature:
   lucide:
@@ -251,7 +251,8 @@ nav:
       - /reference/filesystem/s3/home.md
       - /reference/filesystem/minio/home.md
   - NavReleaseNote:
-    - /release/latest.md
+    - /release/2025.1.0.md
+    - /release/2024.4.1.md
     - /release/2024.4.0.md
     - /release/2024.3.11.md
     - /release/2024.3.10.md

@@ -21,15 +21,6 @@ TRUNCATE TABLE `datacap_message`;
 TRUNCATE TABLE `datacap_message_chat_relation`;
 TRUNCATE TABLE `datacap_message_user_relation`;
 
-TRUNCATE TABLE `datacap_metadata_column`;
-TRUNCATE TABLE `datacap_metadata_column_table_relation`;
-
-TRUNCATE TABLE `datacap_metadata_database`;
-TRUNCATE TABLE `datacap_metadata_database_source_relation`;
-
-TRUNCATE TABLE `datacap_metadata_table`;
-TRUNCATE TABLE `datacap_metadata_table_database_relation`;
-
 TRUNCATE TABLE `datacap_pipeline`;
 TRUNCATE TABLE `datacap_pipeline_user_relation`;
 
@@ -49,5 +40,7 @@ TRUNCATE TABLE `datacap_source`;
 TRUNCATE TABLE `datacap_snippet`;
 
 TRUNCATE TABLE `datacap_workflow`;
+
+TRUNCATE TABLE `datacap_notification`;
 
 mysqldump -u root -p datacap > $(pwd)/configure/schema/datacap.sql
