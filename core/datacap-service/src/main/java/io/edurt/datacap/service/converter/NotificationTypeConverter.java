@@ -1,10 +1,10 @@
 package io.edurt.datacap.service.converter;
 
-import javax.persistence.AttributeConverter;
-
 import io.edurt.datacap.common.utils.JsonUtils;
 import io.edurt.datacap.service.itransient.NotificationTypeEntity;
 import org.apache.commons.lang3.StringUtils;
+
+import javax.persistence.AttributeConverter;
 
 public class NotificationTypeConverter
         implements AttributeConverter<NotificationTypeEntity, String>
