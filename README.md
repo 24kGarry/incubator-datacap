@@ -14,9 +14,9 @@
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/EdurtIO/datacap/dev?style=flat-square)
 ![GitHub Release Date](https://img.shields.io/github/release-date/EdurtIO/datacap?style=flat-square)
 
-![Docker Automated build](https://img.shields.io/docker/automated/qianmoq/datacap)
-![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/qianmoq/datacap?style=flat-square)
-![Docker Pulls](https://img.shields.io/docker/pulls/qianmoq/datacap?style=flat-square)
+![Docker Automated build](https://img.shields.io/docker/automated/devliveorg/datacap)
+![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/devliveorg/datacap?style=flat-square)
+![Docker Pulls](https://img.shields.io/docker/pulls/devliveorg/datacap?style=flat-square)
 
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/EdurtIO/datacap?style=flat-square)
 ![GitHub contributors](https://img.shields.io/github/contributors-anon/EdurtIO/datacap?style=flat-square)
