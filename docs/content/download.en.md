@@ -20,7 +20,7 @@ The current datacap release is version <img class="inline-flex" src="https://img
   !btn[datacap-client-cli-2025.1.0.jar](https://repo1.maven.org/maven2/io/edurt/datacap/datacap-client-cli/2025.1.0/datacap-client-cli-2025.1.0.jar)
 
 - #### More
-  View [The source code to install](/en/reference/getStarted/install.md#the-source-code-to-install) for complete installation instructions。
+  View [The source code to install](/en/reference/get-started/install.md#the-source-code-to-install) for complete installation instructions。
 
   !btn[Source](https://github.com/devlive-community/datacap)
 :::
