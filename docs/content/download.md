@@ -10,7 +10,7 @@ config:
 
 ::: grid cols-3 gap-6
 - #### 服务器软件包
-  利用 `.tar.gz` 包手动部署。查看 [安装 datacap](/zh-CN/reference/getStarted/install.html) 以获取完整的安装说明。
+  利用 `.tar.gz` 包手动部署。查看 [安装 datacap](/zh-CN/reference/get-started/install.html) 以获取完整的安装说明。
 
   !btn[datacap-server-2025.1.0-bin.tar.gz](https://repo1.maven.org/maven2/io/edurt/datacap/datacap-server/2025.1.0/datacap-server-2025.1.0-bin.tar.gz)
 
