@@ -14,7 +14,7 @@ hero:
     url: /<%= pageData.language %>/download.html
     text: 下载使用
   secondaryCta:
-    url: /<%= pageData.language %>/reference/getStarted/install.html
+    url: /<%= pageData.language %>/reference/get-started/install.html
     text: 了解更多
 
 features:
@@ -127,6 +127,6 @@ cta:
   title: 准备好开始了吗？
   description: 立即加入我们，开启您的技术创新之旅
   button:
-    url: /<%= pageData.language %>/reference/getStarted/install.html
+    url: /<%= pageData.language %>/reference/get-started/install.html
     text: 立即使用
 ---

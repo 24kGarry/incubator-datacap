@@ -20,7 +20,7 @@ config:
   !btn[datacap-client-cli-2025.1.0.jar](https://repo1.maven.org/maven2/io/edurt/datacap/datacap-client-cli/2025.1.0/datacap-client-cli-2025.1.0.jar)
 
 - #### 更多
-  查看 [The source code to install](/zh-CN/reference/getStarted/install.md#the-source-code-to-install) 以获取完整的安装说明。
+  查看 [The source code to install](/zh-CN/reference/get-started/install.md#the-source-code-to-install) 以获取完整的安装说明。
   
   !btn[源代码](https://github.com/devlive-community/datacap)
 :::
