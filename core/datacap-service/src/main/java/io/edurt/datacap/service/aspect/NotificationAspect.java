@@ -1,5 +1,6 @@
 package io.edurt.datacap.service.aspect;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.response.CommonResponse;
@@ -36,6 +37,8 @@ public class NotificationAspect
     private final NotificationRepository repository;
     private final UserRepository userRepository;
     private final PluginManager pluginManager;
+    private static final String INTERNAL_NOTIFICATION_TYPE = "Internal";
+    private final ObjectMapper objectMapper;
 
     @AfterReturning(pointcut = "@annotation(sendNotification)", returning = "result")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -60,18 +63,60 @@ public class NotificationAspect
         if (result instanceof CommonResponse) {
             @SuppressWarnings("unchecked")
             CommonResponse<BaseEntity> response = (CommonResponse<BaseEntity>) result;
-            sendDefaultNotification(sendNotification, response.getData());
+
+            // 获取当前登录用户
+            UserEntity loginUser = UserDetailsService.getUser();
+
+            // 检查用户配置的通知类型中是否包含Internal
+            boolean shouldSendInternalNotification = userRepository.findByCode(loginUser.getCode())
+                    .map(user -> Optional.ofNullable(user.getNotifyConfigure())
+                            .orElse(Lists.newArrayList())
+                            .stream()
+                            .anyMatch(rawNotificationType -> {
+                                try {
+                                    return rawNotificationType != null &&
+                                            rawNotificationType.getService() != null &&
+                                            rawNotificationType.getService().equals(sendNotification.entityType().name()) &&
+                                            rawNotificationType.getTypes() != null &&
+                                            rawNotificationType.getTypes().contains(INTERNAL_NOTIFICATION_TYPE);
+                                }
+                                catch (Exception e) {
+                                    log.debug("Error checking notification type: {}", e.getMessage());
+                                    return false;
+                                }
+                            }))
+                    .orElse(false);
+
+            // 如果包含Internal类型，则发送默认的系统内部通知
+            if (shouldSendInternalNotification) {
+                sendDefaultNotification(sendNotification, response.getData());
+            }
         }
     }
 
     private void sendCustomNotifications(UserEntity loginUser, SendNotification sendNotification)
     {
         userRepository.findByCode(loginUser.getCode())
-                .ifPresent(user -> Optional.ofNullable(user.getNotificationTypes())
+                .ifPresent(user -> Optional.ofNullable(user.getNotifyConfigure())
                         .orElse(Lists.newArrayList())
                         .stream()
                         .filter(Objects::nonNull)
-                        .forEach(type -> sendNotificationViaPlugin(type, sendNotification)));
+                        .forEach(rawNotificationType -> {
+                            try {
+                                if (rawNotificationType.getService() != null &&
+                                        rawNotificationType.getService().equals(sendNotification.entityType().name()) &&
+                                        rawNotificationType.getTypes() != null) {
+
+                                    // 处理非Internal类型的插件通知
+                                    rawNotificationType.getTypes().stream()
+                                            .filter(type -> !INTERNAL_NOTIFICATION_TYPE.equals(type))
+                                            .forEach(type -> sendNotificationViaPlugin(type, sendNotification));
+                                }
+                            }
+                            catch (Exception e) {
+                                log.debug("Error processing notification type: {}", e.getMessage());
+                            }
+                        }));
     }
 
     private void sendNotificationViaPlugin(String type, SendNotification sendNotification)

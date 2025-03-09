@@ -22,6 +22,7 @@ export default defineComponent({
 
     const items = computed(() => [
       { title: t('user.common.profile'), href: '/admin/user/profile' },
+      { title: t('user.common.notify'), href: '/admin/user/notify' },
       { title: t('user.common.info'), href: '/admin/user/info' },
       { title: t('user.common.log'), href: '/admin/user/log' },
       { title: t('user.common.editor'), href: '/admin/user/editor' },

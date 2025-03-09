@@ -440,6 +440,15 @@ const createProfileRouter = (router: any) => {
                     isRoot: false
                 },
                 component: () => import('@/views/pages/admin/user/security/PasswordHome.vue')
+            },
+            {
+                username: 'notify',
+                path: 'notify',
+                meta: {
+                    title: 'user.common.notify',
+                    isRoot: false
+                },
+                component: () => import('@/views/pages/admin/user/profile/NotifyHome.vue')
             }
         ]
     }

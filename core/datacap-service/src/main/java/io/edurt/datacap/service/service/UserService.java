@@ -38,4 +38,6 @@ public interface UserService
     CommonResponse<UserEntity> changeEditorConfigure(UserEditorEntity configure);
 
     CommonResponse<AvatarEntity> uploadAvatar(UploadBody configure);
+
+    CommonResponse<UserEntity> changeNotify(UserEntity configure);
 }
