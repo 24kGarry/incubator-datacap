@@ -1,6 +1,5 @@
 package io.edurt.datacap.service.aspect;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.response.CommonResponse;
@@ -12,6 +11,7 @@ import io.edurt.datacap.service.entity.BaseEntity;
 import io.edurt.datacap.service.entity.NotificationEntity;
 import io.edurt.datacap.service.entity.UserEntity;
 import io.edurt.datacap.service.enums.NotificationType;
+import io.edurt.datacap.service.itransient.NotificationTypeEntity;
 import io.edurt.datacap.service.repository.NotificationRepository;
 import io.edurt.datacap.service.repository.UserRepository;
 import io.edurt.datacap.service.security.UserDetailsService;
@@ -34,15 +34,18 @@ import java.util.Optional;
 @SuppressFBWarnings(value = {"EI_EXPOSE_REP2"})
 public class NotificationAspect
 {
+    private static final String INTERNAL_NOTIFICATION_TYPE = "Internal";
     private final NotificationRepository repository;
     private final UserRepository userRepository;
     private final PluginManager pluginManager;
-    private static final String INTERNAL_NOTIFICATION_TYPE = "Internal";
-    private final ObjectMapper objectMapper;
 
     @AfterReturning(pointcut = "@annotation(sendNotification)", returning = "result")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendNotification(JoinPoint joinPoint, SendNotification sendNotification, Object result)
+    public void sendNotification(
+            JoinPoint joinPoint,
+            SendNotification sendNotification,
+            Object result
+    )
     {
         try {
             UserEntity loginUser = UserDetailsService.getUser();
@@ -51,7 +54,7 @@ public class NotificationAspect
             processResultAndSendDefaultNotification(result, sendNotification);
 
             // 发送用户配置的通知
-            sendCustomNotifications(loginUser, sendNotification);
+            sendCustomNotifications(loginUser, sendNotification, result);
         }
         catch (Exception e) {
             log.error("Failed to send notification: {}", e.getMessage(), e);
@@ -72,13 +75,9 @@ public class NotificationAspect
                     .map(user -> Optional.ofNullable(user.getNotifyConfigure())
                             .orElse(Lists.newArrayList())
                             .stream()
-                            .anyMatch(rawNotificationType -> {
+                            .anyMatch(notificationType -> {
                                 try {
-                                    return rawNotificationType != null &&
-                                            rawNotificationType.getService() != null &&
-                                            rawNotificationType.getService().equals(sendNotification.entityType().name()) &&
-                                            rawNotificationType.getTypes() != null &&
-                                            rawNotificationType.getTypes().contains(INTERNAL_NOTIFICATION_TYPE);
+                                    return isNotificationTypeValid(notificationType, sendNotification, INTERNAL_NOTIFICATION_TYPE, response.getData());
                                 }
                                 catch (Exception e) {
                                     log.debug("Error checking notification type: {}", e.getMessage());
@@ -94,23 +93,87 @@ public class NotificationAspect
         }
     }
 
-    private void sendCustomNotifications(UserEntity loginUser, SendNotification sendNotification)
+    private boolean isNotificationTypeValid(
+            NotificationTypeEntity notificationType,
+            SendNotification sendNotification,
+            String type,
+            Object data
+    )
+    {
+        if (notificationType == null ||
+                !notificationType.isEnabled() ||
+                notificationType.getType() == null ||
+                !notificationType.getType().equals(type) ||
+                notificationType.getServices() == null) {
+            return false;
+        }
+
+        // 处理DYNAMIC类型的特殊情况
+        if (sendNotification.type().equals(NotificationType.DYNAMIC)) {
+            // 根据data的ID判断实际操作类型
+            if (data instanceof BaseEntity) {
+                BaseEntity entity = (BaseEntity) data;
+                if (entity.getId() == null) {
+                    // 新建操作，检查services中是否包含CREATED
+                    return notificationType.getServices().contains(NotificationType.CREATED.name());
+                }
+                else {
+                    // 更新操作，检查services中是否包含UPDATED
+                    return notificationType.getServices().contains(NotificationType.UPDATED.name());
+                }
+            }
+            return false;
+        }
+        else {
+            // 对于非DYNAMIC类型，检查具体的通知类型
+            return notificationType.getServices().contains(sendNotification.type().name());
+        }
+    }
+
+    private void sendCustomNotifications(UserEntity loginUser, SendNotification sendNotification, Object result)
     {
         userRepository.findByCode(loginUser.getCode())
                 .ifPresent(user -> Optional.ofNullable(user.getNotifyConfigure())
                         .orElse(Lists.newArrayList())
                         .stream()
                         .filter(Objects::nonNull)
-                        .forEach(rawNotificationType -> {
+                        .filter(NotificationTypeEntity::isEnabled)
+                        .forEach(notificationType -> {
                             try {
-                                if (rawNotificationType.getService() != null &&
-                                        rawNotificationType.getService().equals(sendNotification.entityType().name()) &&
-                                        rawNotificationType.getTypes() != null) {
+                                if (notificationType.getServices() != null &&
+                                        notificationType.getType() != null) {
+                                    // 获取结果数据
+                                    Object data = null;
+                                    if (result instanceof CommonResponse) {
+                                        @SuppressWarnings("unchecked")
+                                        CommonResponse<BaseEntity> response = (CommonResponse<BaseEntity>) result;
+                                        data = response.getData();
+                                    }
 
-                                    // 处理非Internal类型的插件通知
-                                    rawNotificationType.getTypes().stream()
-                                            .filter(type -> !INTERNAL_NOTIFICATION_TYPE.equals(type))
-                                            .forEach(type -> sendNotificationViaPlugin(type, sendNotification));
+                                    // 处理DYNAMIC类型的特殊情况
+                                    boolean servicesContainsType;
+                                    if (sendNotification.type().equals(NotificationType.DYNAMIC) && data != null) {
+                                        BaseEntity entity = (BaseEntity) data;
+                                        if (entity.getId() == null) {
+                                            // 新建操作，检查services中是否包含CREATED
+                                            servicesContainsType = notificationType.getServices().contains(NotificationType.CREATED.name());
+                                        }
+                                        else {
+                                            // 更新操作，检查services中是否包含UPDATED
+                                            servicesContainsType = notificationType.getServices().contains(NotificationType.UPDATED.name());
+                                        }
+                                    }
+                                    else {
+                                        // 对于非DYNAMIC类型，检查具体的通知类型
+                                        servicesContainsType = notificationType.getServices().contains(sendNotification.type().name());
+                                    }
+
+                                    if (servicesContainsType) {
+                                        // 处理非Internal类型
+                                        if (!INTERNAL_NOTIFICATION_TYPE.equals(notificationType.getType())) {
+                                            sendNotificationViaPlugin(notificationType.getType(), sendNotification);
+                                        }
+                                    }
                                 }
                             }
                             catch (Exception e) {
@@ -175,9 +238,7 @@ public class NotificationAspect
         return baseEntity;
     }
 
-    private NotificationEntity buildNotificationEntity(SendNotification sendNotification,
-            Object configure,
-            boolean isDelete)
+    private NotificationEntity buildNotificationEntity(SendNotification sendNotification, Object configure, boolean isDelete)
     {
         boolean isStringConfigure = (configure instanceof String);
 
