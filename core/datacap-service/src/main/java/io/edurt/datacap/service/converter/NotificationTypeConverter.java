@@ -1,28 +1,49 @@
 package io.edurt.datacap.service.converter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import io.edurt.datacap.common.utils.JsonUtils;
 import io.edurt.datacap.service.itransient.NotificationTypeEntity;
-import org.apache.commons.lang3.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Slf4j
+@Converter
 public class NotificationTypeConverter
-        implements AttributeConverter<NotificationTypeEntity, String>
+        implements AttributeConverter<List<NotificationTypeEntity>, String>
 {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final List<NotificationTypeEntity> emptyList = Lists.newArrayList();
+
     @Override
-    public String convertToDatabaseColumn(NotificationTypeEntity entity)
+    public String convertToDatabaseColumn(List<NotificationTypeEntity> attribute)
     {
-        return JsonUtils.toJSON(entity);
+        if (attribute == null || attribute.isEmpty()) {
+            return JsonUtils.toJSON(emptyList);
+        }
+
+        return JsonUtils.toJSON(attribute);
     }
 
     @Override
-    public NotificationTypeEntity convertToEntityAttribute(String s)
+    public List<NotificationTypeEntity> convertToEntityAttribute(String dbData)
     {
-        if (StringUtils.isEmpty(s)) {
-            return null;
+        if (dbData == null || dbData.isEmpty()) {
+            return new ArrayList<>();
         }
-        else {
-            return JsonUtils.toObject(s, NotificationTypeEntity.class);
+
+        try {
+            return objectMapper.readValue(dbData,
+                    new com.fasterxml.jackson.core.type.TypeReference<>() {});
+        }
+        catch (Exception e) {
+            log.error("Error converting JSON to List<NotificationTypeEntity>", e);
+            return new ArrayList<>();
         }
     }
 }

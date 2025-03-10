@@ -7,10 +7,11 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.view.EntityView;
 import io.edurt.datacap.service.converter.AvatarConverter;
-import io.edurt.datacap.service.converter.ListConverter;
+import io.edurt.datacap.service.converter.NotificationTypeConverter;
 import io.edurt.datacap.service.converter.UserEditorConverter;
 import io.edurt.datacap.service.entity.convert.AvatarEntity;
 import io.edurt.datacap.service.entity.itransient.user.UserEditorEntity;
+import io.edurt.datacap.service.itransient.NotificationTypeEntity;
 import io.edurt.datacap.service.validation.ValidationGroup;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -103,10 +104,10 @@ public class UserEntity
     @JsonIgnore
     private List<SourceEntity> sources;
 
-    @Column(name = "notification_types")
-    @JsonView(value = {EntityView.NoneView.class})
-    @Convert(converter = ListConverter.class)
-    private List<String> notificationTypes = Lists.newArrayList();
+    @Column(name = "notify_configure")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
+    @Convert(converter = NotificationTypeConverter.class)
+    private List<NotificationTypeEntity> notifyConfigure = Lists.newArrayList();
 
     @Formula("(SELECT COUNT(n.id) FROM datacap_notification n WHERE n.user_id = id AND n.is_read = false)")
     @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})

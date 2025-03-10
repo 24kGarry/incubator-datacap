@@ -18,8 +18,11 @@ import java.util.Set;
 public class NotificationTypeEntity
 {
     @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
-    private String service;
+    private boolean enabled;
 
     @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
-    private Set<String> types;
+    private String type;
+
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
+    private Set<String> services;
 }

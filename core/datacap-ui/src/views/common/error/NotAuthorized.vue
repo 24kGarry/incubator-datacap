@@ -1,9 +1,7 @@
 <template>
   <BaseLayout>
     <div class='h-screen'>
-      <ShadcnException type="403"
-                       :title="$t('common.pageNotAuthorized')"
-                       :description="$t('common.pageNotAuthorizedTip')">
+      <ShadcnException type="403" :title="$t('common.pageNotAuthorized')" :description="$t('common.pageNotAuthorizedTip')">
         <template #actions>
           <ShadcnButton type="default" :to="$route.query.redirect">
             {{ $t('common.backTo') }}

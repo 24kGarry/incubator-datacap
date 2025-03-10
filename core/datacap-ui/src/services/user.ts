@@ -130,6 +130,11 @@ class UserService
     {
         return new HttpUtils().upload(`${ DEFAULT_PATH_USER }/uploadAvatar`, configure)
     }
+
+    changeNotify(configure: any): Promise<ResponseModel>
+    {
+        return new HttpUtils().put(`${ DEFAULT_PATH_USER }/change-notify`, configure)
+    }
 }
 
 export default new UserService()

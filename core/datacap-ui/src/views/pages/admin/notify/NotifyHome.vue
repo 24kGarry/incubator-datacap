@@ -141,6 +141,7 @@ const handleDelete = async (message: any) => {
 const fetchMessages = async (value: number = 1) => {
   filter.page = value
   filter.size = pageSize.value
+  filter.orders = [{ column: 'createTime', order: 'desc' }]
   loading.value = true
   try {
     const response = await NotificationService.getAll(filter)
