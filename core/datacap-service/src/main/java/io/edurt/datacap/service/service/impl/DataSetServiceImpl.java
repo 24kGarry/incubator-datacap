@@ -48,6 +48,7 @@ import io.edurt.datacap.service.enums.EntityType;
 import io.edurt.datacap.service.enums.NotificationType;
 import io.edurt.datacap.service.enums.QueryMode;
 import io.edurt.datacap.service.enums.SyncMode;
+import io.edurt.datacap.service.event.NotificationEventPublisher;
 import io.edurt.datacap.service.initializer.InitializerConfigure;
 import io.edurt.datacap.service.initializer.job.DatasetJob;
 import io.edurt.datacap.service.model.CreatedModel;
@@ -73,6 +74,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -105,8 +111,9 @@ public class DataSetServiceImpl
     private final Environment environment;
     private final SourceRepository sourceRepository;
     private final NotificationRepository notificationRepository;
+    private final NotificationEventPublisher eventPublisher;
 
-    public DataSetServiceImpl(DataSetRepository repository, DataSetColumnRepository columnRepository, DatasetHistoryRepository historyRepository, PluginManager pluginManager, InitializerConfigure initializerConfigure, org.quartz.Scheduler scheduler, Environment environment, SourceRepository sourceRepository, NotificationRepository notificationRepository)
+    public DataSetServiceImpl(DataSetRepository repository, DataSetColumnRepository columnRepository, DatasetHistoryRepository historyRepository, PluginManager pluginManager, InitializerConfigure initializerConfigure, org.quartz.Scheduler scheduler, Environment environment, SourceRepository sourceRepository, NotificationRepository notificationRepository, NotificationEventPublisher eventPublisher)
     {
         this.repository = repository;
         this.columnRepository = columnRepository;
@@ -117,6 +124,7 @@ public class DataSetServiceImpl
         this.environment = environment;
         this.sourceRepository = sourceRepository;
         this.notificationRepository = notificationRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -157,16 +165,27 @@ public class DataSetServiceImpl
                 .orElseGet(() -> CommonResponse.failure(String.format("DataSet [ %s ] not found", code)));
     }
 
-    @Override
-    public CommonResponse<Boolean> syncData(String code)
+    private static void setAuthenticationContext(UserEntity user)
     {
-        return repository.findByCode(code)
-                .map(entity -> {
-                    java.util.concurrent.ExecutorService service = Executors.newSingleThreadExecutor();
-                    service.submit(() -> syncData(entity, service));
-                    return CommonResponse.success(true);
-                })
-                .orElseGet(() -> CommonResponse.failure(String.format("DataSet [ %s ] not found", code)));
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getCode()))
+                .collect(Collectors.toList());
+
+        UserDetailsService userDetails = new UserDetailsService(
+                user.getId(),
+                user.getCode(),
+                user.getUsername(),
+                "", // 空密码，因为我们只需要身份信息
+                authorities,
+                null // 头像可能为空
+        );
+
+        // 创建认证对象
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                userDetails, "", userDetails.getAuthorities());
+
+        // 设置到 SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Override
@@ -610,194 +629,30 @@ public class DataSetServiceImpl
                 .orElseThrow(() -> new RuntimeException("Not found service from %s" + initializerConfigure.getDataSetConfigure().getType()));
     }
 
-    private void syncData(DataSetEntity entity, java.util.concurrent.ExecutorService service)
+    @Override
+    public CommonResponse<DataSetEntity> syncData(String code)
     {
-        DatasetHistoryEntity history = new DatasetHistoryEntity();
-        try {
-            SourceEntity source = entity.getSource();
+        return repository.findByCode(code)
+                .map(entity -> {
+                    UserEntity currentUser = UserDetailsService.getUser();
+                    java.util.concurrent.ExecutorService service = Executors.newSingleThreadExecutor();
 
-            pluginManager.getPlugin(source.getType())
-                    .ifPresentOrElse(plugin -> {
-                                history.setState(RunState.CREATED);
-                                history.setCreateTime(new Date());
-                                history.setQuery(entity.getQuery());
-                                history.setDataset(entity);
-                                historyRepository.save(history);
-
-                                PluginService inputPlugin = plugin.getService(PluginService.class);
-                                pluginManager.getPlugin(entity.getExecutor())
-                                        .ifPresentOrElse(
-                                                executor -> {
-                                                    ExecutorService executorService = executor.getService(ExecutorService.class);
-
-                                                    Set<OriginColumn> originColumns = columnRepository.findAllByDataset(entity)
-                                                            .stream()
-                                                            .filter(item -> !item.isVirtualColumn())
-                                                            .map(item -> new OriginColumn(item.getName(), item.getOriginal()))
-                                                            .collect(Collectors.toSet());
-                                                    String database = initializerConfigure.getDataSetConfigure().getDatabase();
-                                                    Properties originInputProperties = new Properties();
-                                                    originInputProperties.put("driver", inputPlugin.driver());
-
-                                                    PipelineFieldBody inputFieldBody = ConfigureUtils.convertFieldBody(
-                                                            source,
-                                                            entity.getExecutor(),
-                                                            IConfigurePipelineType.INPUT,
-                                                            environment,
-                                                            originInputProperties
-                                                    );
-
-                                                    Properties inputProperties = ConfigureUtils.convertProperties(
-                                                            source, environment,
-                                                            IConfigurePipelineType.INPUT,
-                                                            entity.getExecutor(),
-                                                            entity.getQuery(),
-                                                            inputFieldBody
-                                                    );
-
-                                                    Set<String> inputOptions = ConfigureUtils.convertOptions(
-                                                            source,
-                                                            environment,
-                                                            entity.getExecutor(),
-                                                            IConfigurePipelineType.INPUT
-                                                    );
-
-                                                    Configure inputConfigure = source.toConfigure(pluginManager, plugin);
-                                                    inputConfigure.setPluginManager(pluginManager);
-                                                    ExecutorConfigure input = new ExecutorConfigure(
-                                                            source.getType(),
-                                                            inputProperties,
-                                                            inputOptions,
-                                                            source.getProtocol(),
-                                                            inputPlugin,
-                                                            entity.getQuery(),
-                                                            database,
-                                                            entity.getTableName(),
-                                                            inputConfigure,
-                                                            originColumns
-                                                    );
-
-                                                    pluginManager.getPlugin(initializerConfigure.getDataSetConfigure().getType())
-                                                            .ifPresent(outPlugin -> {
-                                                                PluginService outputPlugin = outPlugin.getService(PluginService.class);
-                                                                SourceEntity outputSource = new SourceEntity();
-                                                                outputSource.setType(initializerConfigure.getDataSetConfigure().getType());
-                                                                outputSource.setDatabase(initializerConfigure.getDataSetConfigure().getDatabase());
-                                                                outputSource.setHost(initializerConfigure.getDataSetConfigure().getHost());
-                                                                outputSource.setPort(Integer.valueOf(initializerConfigure.getDataSetConfigure().getPort()));
-                                                                outputSource.setUsername(initializerConfigure.getDataSetConfigure().getUsername());
-                                                                outputSource.setPassword(initializerConfigure.getDataSetConfigure().getPassword());
-                                                                outputSource.setProtocol(PluginType.JDBC.name());
-
-                                                                Properties originOutputProperties = new Properties();
-                                                                List<String> fields = Lists.newArrayList();
-                                                                columnRepository.findAllByDataset(entity)
-                                                                        .forEach(item -> fields.add(item.getName()));
-                                                                originOutputProperties.put("fields", String.join("\n", fields));
-                                                                originOutputProperties.put("database", database);
-                                                                originOutputProperties.put("table", entity.getTableName());
-
-                                                                PipelineFieldBody outputFieldBody = ConfigureUtils.convertFieldBody(
-                                                                        outputSource,
-                                                                        entity.getExecutor(),
-                                                                        IConfigurePipelineType.OUTPUT,
-                                                                        environment,
-                                                                        originOutputProperties
-                                                                );
-
-                                                                Properties outputProperties = ConfigureUtils.convertProperties(
-                                                                        outputSource,
-                                                                        environment,
-                                                                        IConfigurePipelineType.OUTPUT,
-                                                                        entity.getExecutor(),
-                                                                        entity.getQuery(),
-                                                                        outputFieldBody
-                                                                );
-
-                                                                Set<String> outputOptions = ConfigureUtils.convertOptions(
-                                                                        outputSource,
-                                                                        environment,
-                                                                        entity.getExecutor(),
-                                                                        IConfigurePipelineType.OUTPUT
-                                                                );
-
-                                                                ExecutorConfigure output = new ExecutorConfigure(
-                                                                        outputSource.getType(),
-                                                                        outputProperties,
-                                                                        outputOptions,
-                                                                        RunProtocol.NONE.name(),
-                                                                        outputPlugin,
-                                                                        null,
-                                                                        null,
-                                                                        null,
-                                                                        getConfigure(database, outPlugin),
-                                                                        Sets.newHashSet()
-                                                                );
-
-                                                                String taskName = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
-                                                                String workHome = FolderUtils.getWorkHome(
-                                                                        initializerConfigure.getDataHome(),
-                                                                        entity.getUser().getUsername(),
-                                                                        String.join(File.separator, "dataset", entity.getExecutor().toLowerCase(), taskName)
-                                                                );
-
-                                                                ExecutorRequest request = new ExecutorRequest(
-                                                                        taskName,
-                                                                        entity.getUser().getUsername(),
-                                                                        input,
-                                                                        output,
-                                                                        environment.getProperty(String.format("datacap.executor.%s.home", entity.getExecutor().toLowerCase())),
-                                                                        workHome,
-                                                                        this.pluginManager,
-                                                                        600,
-                                                                        RunWay.valueOf(requireNonNull(environment.getProperty("datacap.executor.way"))),
-                                                                        RunMode.valueOf(requireNonNull(environment.getProperty("datacap.executor.mode"))),
-                                                                        environment.getProperty("datacap.executor.startScript"),
-                                                                        RunEngine.valueOf(requireNonNull(environment.getProperty("datacap.executor.engine"))),
-                                                                        null
-                                                                );
-
-                                                                history.setState(RunState.RUNNING);
-                                                                historyRepository.save(history);
-
-                                                                ExecutorResponse response = executorService.start(request);
-                                                                history.setUpdateTime(new Date());
-                                                                history.setElapsed((history.getUpdateTime().getTime() - history.getCreateTime().getTime()) / 1000);
-                                                                history.setMode(QueryMode.SYNC);
-                                                                history.setCount(response.getCount());
-                                                                history.setState(response.getState());
-                                                                Preconditions.checkArgument(response.getSuccessful(), response.getMessage());
-
-                                                                this.flushTableMetadata(
-                                                                        entity,
-                                                                        outputPlugin,
-                                                                        database,
-                                                                        requireNonNull(output.getOriginConfigure()),
-                                                                        outPlugin
-                                                                );
-                                                            });
-                                                },
-                                                () -> {
-                                                    log.warn("Executor [ {} ] not found", entity.getExecutor());
-                                                    history.setMessage(String.format("Executor [ %s ] not found", entity.getExecutor()));
-                                                    history.setState(RunState.FAILURE);
-                                                    historyRepository.save(history);
-                                                }
-                                        );
-                            },
-                            () -> {
-                                throw new IllegalArgumentException(String.format("Plugin [ %s ] not found", initializerConfigure.getDataSetConfigure().getType()));
-                            });
-        }
-        catch (Exception e) {
-            log.warn("Sync data for dataset [ {} ] failed", entity.getName(), e);
-            history.setState(RunState.FAILURE);
-            history.setMessage(e.getMessage());
-        }
-        finally {
-            historyRepository.save(history);
-            service.shutdownNow();
-        }
+                    service.submit(() -> {
+                        // 在异步线程中设置用户上下文
+                        setAuthenticationContext(currentUser);
+                        DataSetEntity result = syncData(entity, service);
+                        eventPublisher.publishNotificationEvent(
+                                result,
+                                null,
+                                "",
+                                EntityType.DATASET,
+                                NotificationType.SYNCDATA,
+                                new String[] {}
+                        );
+                    });
+                    return CommonResponse.success(entity);
+                })
+                .orElseGet(() -> CommonResponse.failure(String.format("DataSet [ %s ] not found", code)));
     }
 
     /**
@@ -1056,5 +911,196 @@ public class DataSetServiceImpl
         column.setDefaultValue(item.getColumn().getDefaultValue());
         column.setPrimaryKey(item.getColumn().isPrimaryKey());
         return column;
+    }
+
+    private DataSetEntity syncData(DataSetEntity entity, java.util.concurrent.ExecutorService service)
+    {
+        DatasetHistoryEntity history = new DatasetHistoryEntity();
+        try {
+            SourceEntity source = entity.getSource();
+
+            pluginManager.getPlugin(source.getType())
+                    .ifPresentOrElse(plugin -> {
+                                history.setState(RunState.CREATED);
+                                history.setCreateTime(new Date());
+                                history.setQuery(entity.getQuery());
+                                history.setDataset(entity);
+                                historyRepository.save(history);
+
+                                PluginService inputPlugin = plugin.getService(PluginService.class);
+                                pluginManager.getPlugin(entity.getExecutor())
+                                        .ifPresentOrElse(
+                                                executor -> {
+                                                    ExecutorService executorService = executor.getService(ExecutorService.class);
+
+                                                    Set<OriginColumn> originColumns = columnRepository.findAllByDataset(entity)
+                                                            .stream()
+                                                            .filter(item -> !item.isVirtualColumn())
+                                                            .map(item -> new OriginColumn(item.getName(), item.getOriginal()))
+                                                            .collect(Collectors.toSet());
+                                                    String database = initializerConfigure.getDataSetConfigure().getDatabase();
+                                                    Properties originInputProperties = new Properties();
+                                                    originInputProperties.put("driver", inputPlugin.driver());
+
+                                                    PipelineFieldBody inputFieldBody = ConfigureUtils.convertFieldBody(
+                                                            source,
+                                                            entity.getExecutor(),
+                                                            IConfigurePipelineType.INPUT,
+                                                            environment,
+                                                            originInputProperties
+                                                    );
+
+                                                    Properties inputProperties = ConfigureUtils.convertProperties(
+                                                            source, environment,
+                                                            IConfigurePipelineType.INPUT,
+                                                            entity.getExecutor(),
+                                                            entity.getQuery(),
+                                                            inputFieldBody
+                                                    );
+
+                                                    Set<String> inputOptions = ConfigureUtils.convertOptions(
+                                                            source,
+                                                            environment,
+                                                            entity.getExecutor(),
+                                                            IConfigurePipelineType.INPUT
+                                                    );
+
+                                                    Configure inputConfigure = source.toConfigure(pluginManager, plugin);
+                                                    inputConfigure.setPluginManager(pluginManager);
+                                                    ExecutorConfigure input = new ExecutorConfigure(
+                                                            source.getType(),
+                                                            inputProperties,
+                                                            inputOptions,
+                                                            source.getProtocol(),
+                                                            inputPlugin,
+                                                            entity.getQuery(),
+                                                            database,
+                                                            entity.getTableName(),
+                                                            inputConfigure,
+                                                            originColumns
+                                                    );
+
+                                                    pluginManager.getPlugin(initializerConfigure.getDataSetConfigure().getType())
+                                                            .ifPresent(outPlugin -> {
+                                                                PluginService outputPlugin = outPlugin.getService(PluginService.class);
+                                                                SourceEntity outputSource = new SourceEntity();
+                                                                outputSource.setType(initializerConfigure.getDataSetConfigure().getType());
+                                                                outputSource.setDatabase(initializerConfigure.getDataSetConfigure().getDatabase());
+                                                                outputSource.setHost(initializerConfigure.getDataSetConfigure().getHost());
+                                                                outputSource.setPort(Integer.valueOf(initializerConfigure.getDataSetConfigure().getPort()));
+                                                                outputSource.setUsername(initializerConfigure.getDataSetConfigure().getUsername());
+                                                                outputSource.setPassword(initializerConfigure.getDataSetConfigure().getPassword());
+                                                                outputSource.setProtocol(PluginType.JDBC.name());
+
+                                                                Properties originOutputProperties = new Properties();
+                                                                List<String> fields = Lists.newArrayList();
+                                                                columnRepository.findAllByDataset(entity)
+                                                                        .forEach(item -> fields.add(item.getName()));
+                                                                originOutputProperties.put("fields", String.join("\n", fields));
+                                                                originOutputProperties.put("database", database);
+                                                                originOutputProperties.put("table", entity.getTableName());
+
+                                                                PipelineFieldBody outputFieldBody = ConfigureUtils.convertFieldBody(
+                                                                        outputSource,
+                                                                        entity.getExecutor(),
+                                                                        IConfigurePipelineType.OUTPUT,
+                                                                        environment,
+                                                                        originOutputProperties
+                                                                );
+
+                                                                Properties outputProperties = ConfigureUtils.convertProperties(
+                                                                        outputSource,
+                                                                        environment,
+                                                                        IConfigurePipelineType.OUTPUT,
+                                                                        entity.getExecutor(),
+                                                                        entity.getQuery(),
+                                                                        outputFieldBody
+                                                                );
+
+                                                                Set<String> outputOptions = ConfigureUtils.convertOptions(
+                                                                        outputSource,
+                                                                        environment,
+                                                                        entity.getExecutor(),
+                                                                        IConfigurePipelineType.OUTPUT
+                                                                );
+
+                                                                ExecutorConfigure output = new ExecutorConfigure(
+                                                                        outputSource.getType(),
+                                                                        outputProperties,
+                                                                        outputOptions,
+                                                                        RunProtocol.NONE.name(),
+                                                                        outputPlugin,
+                                                                        null,
+                                                                        null,
+                                                                        null,
+                                                                        getConfigure(database, outPlugin),
+                                                                        Sets.newHashSet()
+                                                                );
+
+                                                                String taskName = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
+                                                                String workHome = FolderUtils.getWorkHome(
+                                                                        initializerConfigure.getDataHome(),
+                                                                        entity.getUser().getUsername(),
+                                                                        String.join(File.separator, "dataset", entity.getExecutor().toLowerCase(), taskName)
+                                                                );
+
+                                                                ExecutorRequest request = new ExecutorRequest(
+                                                                        taskName,
+                                                                        entity.getUser().getUsername(),
+                                                                        input,
+                                                                        output,
+                                                                        environment.getProperty(String.format("datacap.executor.%s.home", entity.getExecutor().toLowerCase())),
+                                                                        workHome,
+                                                                        this.pluginManager,
+                                                                        600,
+                                                                        RunWay.valueOf(requireNonNull(environment.getProperty("datacap.executor.way"))),
+                                                                        RunMode.valueOf(requireNonNull(environment.getProperty("datacap.executor.mode"))),
+                                                                        environment.getProperty("datacap.executor.startScript"),
+                                                                        RunEngine.valueOf(requireNonNull(environment.getProperty("datacap.executor.engine"))),
+                                                                        null
+                                                                );
+
+                                                                history.setState(RunState.RUNNING);
+                                                                historyRepository.save(history);
+
+                                                                ExecutorResponse response = executorService.start(request);
+                                                                history.setUpdateTime(new Date());
+                                                                history.setElapsed((history.getUpdateTime().getTime() - history.getCreateTime().getTime()) / 1000);
+                                                                history.setMode(QueryMode.SYNC);
+                                                                history.setCount(response.getCount());
+                                                                history.setState(response.getState());
+                                                                Preconditions.checkArgument(response.getSuccessful(), response.getMessage());
+
+                                                                this.flushTableMetadata(
+                                                                        entity,
+                                                                        outputPlugin,
+                                                                        database,
+                                                                        requireNonNull(output.getOriginConfigure()),
+                                                                        outPlugin
+                                                                );
+                                                            });
+                                                },
+                                                () -> {
+                                                    log.warn("Executor [ {} ] not found", entity.getExecutor());
+                                                    history.setMessage(String.format("Executor [ %s ] not found", entity.getExecutor()));
+                                                    history.setState(RunState.FAILURE);
+                                                    historyRepository.save(history);
+                                                }
+                                        );
+                            },
+                            () -> {
+                                throw new IllegalArgumentException(String.format("Plugin [ %s ] not found", initializerConfigure.getDataSetConfigure().getType()));
+                            });
+        }
+        catch (Exception e) {
+            log.warn("Sync data for dataset [ {} ] failed", entity.getName(), e);
+            history.setState(RunState.FAILURE);
+            history.setMessage(e.getMessage());
+        }
+        finally {
+            historyRepository.save(history);
+            service.shutdownNow();
+        }
+        return entity;
     }
 }

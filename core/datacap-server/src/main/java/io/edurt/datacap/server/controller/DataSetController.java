@@ -50,7 +50,7 @@ public class DataSetController
     }
 
     @PutMapping(value = "syncData/{code}")
-    public CommonResponse<Boolean> syncData(@PathVariable String code)
+    public CommonResponse<DataSetEntity> syncData(@PathVariable String code)
     {
         return service.syncData(code);
     }

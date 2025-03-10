@@ -11,6 +11,7 @@
           <ShadcnCheckbox value="CREATED">{{ $t('notify.text.created') }}</ShadcnCheckbox>
           <ShadcnCheckbox value="UPDATED">{{ $t('notify.text.updated') }}</ShadcnCheckbox>
           <ShadcnCheckbox value="DELETED">{{ $t('notify.text.deleted') }}</ShadcnCheckbox>
+          <ShadcnCheckbox value="SYNCDATA">{{ $t('notify.text.syncData') }}</ShadcnCheckbox>
         </ShadcnCheckboxGroup>
       </ShadcnFormItem>
     </ShadcnForm>

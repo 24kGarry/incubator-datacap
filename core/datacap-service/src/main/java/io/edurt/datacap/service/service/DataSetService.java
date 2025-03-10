@@ -20,7 +20,7 @@ public interface DataSetService
 
     CommonResponse<List<DataSetColumnEntity>> getColumnsByCode(String code);
 
-    CommonResponse<Boolean> syncData(String code);
+    CommonResponse<DataSetEntity> syncData(String code);
 
     CommonResponse<Boolean> clearData(String code);
 

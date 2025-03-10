@@ -5,5 +5,6 @@ public enum NotificationType
     CREATED,
     UPDATED,
     DELETED,
-    DYNAMIC
+    DYNAMIC,
+    SYNCDATA
 }
