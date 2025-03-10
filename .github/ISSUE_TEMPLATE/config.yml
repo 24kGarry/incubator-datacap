@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Question
-    url: https://github.com/devlive-community/datacap/discussions
-    about: Please ask your question here
+    url: https://community.devlive.org/t/datacap
+    about: Please ask a question on [DataCap Community](https://community.devlive.org).
