@@ -121,7 +121,7 @@ stats:
     - label: Data sources are supported
       value: 60+
     - label: Gitee Stars
-      value: 700+
+      value: 800+
 
 cta:
   title: Ready to get started？
