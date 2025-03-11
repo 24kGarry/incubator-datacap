@@ -121,7 +121,7 @@ stats:
     - label: 支持数据源
       value: 60+
     - label: Gitee Stars
-      value: 700+
+      value: 800+
 
 cta:
   title: 准备好开始了吗？
