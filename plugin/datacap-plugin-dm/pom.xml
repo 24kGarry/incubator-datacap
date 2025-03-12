@@ -28,6 +28,11 @@
             <artifactId>DmJdbcDriver18</artifactId>
             <version>${dameng.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.edurt.datacap</groupId>
+            <artifactId>datacap-convert-spi</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
