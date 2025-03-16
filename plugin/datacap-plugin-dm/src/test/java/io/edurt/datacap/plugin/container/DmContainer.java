@@ -1,5 +1,6 @@
 package io.edurt.datacap.plugin.container;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.JdbcDatabaseContainer;
@@ -13,6 +14,7 @@ import java.sql.Statement;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
+@SuppressFBWarnings(value = {"EQ_DOESNT_OVERRIDE_EQUALS", "OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE"})
 public class DmContainer
         extends JdbcDatabaseContainer<DmContainer>
 {
