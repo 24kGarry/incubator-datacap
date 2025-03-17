@@ -17,7 +17,7 @@ public class DmService
     @Override
     public String validator()
     {
-        return "SELECT DB_VERSION AS version\n" +
+        return "SELECT SVR_VERSION AS version\n" +
                 "FROM V$INSTANCE";
     }
 
