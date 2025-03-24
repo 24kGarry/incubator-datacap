@@ -22,9 +22,10 @@ public class DmServiceTest
     private static final DmContainer CONTAINER = new DmContainer(DAMENG_8)
             .withXa()
             .withLockWaitTimeout(50_000L);
+    private static final String pluginName = "Dm";
+
     private PluginManager pluginManager;
     private Plugin plugin;
-    private final String pluginName = "Dm";
     private Configure configure;
 
     @Before

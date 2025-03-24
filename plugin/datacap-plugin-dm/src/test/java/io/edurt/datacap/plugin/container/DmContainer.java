@@ -204,7 +204,7 @@ public class DmContainer
             LOG.debug("Engine status");
             try (ResultSet rs = st.executeQuery("SELECT * FROM V$SYSSTAT")) {
                 while (rs.next()) {
-                    LOG.debug("{}: {}", rs.getString("NAME"), rs.getString("VALUE"));
+                    LOG.debug("{}: {}", rs.getString("NAME"), rs.getString("STAT_VAL"));
                 }
             }
         }
@@ -215,14 +215,14 @@ public class DmContainer
             LOG.debug("All Sessions");
             try {
                 // Try using the session view of Dameng database
-                ResultSet rs = st.executeQuery("SELECT * FROM V$SESSIONS WHERE STATUS = 'ACTIVE'");
+                ResultSet rs = st.executeQuery("SELECT * FROM V$SESSIONS WHERE STATE = 'ACTIVE'");
                 while (rs.next()) {
                     LOG.debug(
-                            "SID: {}, USER: {}, STATUS: {}, SCHEMA: {}, SQL_TEXT: {}",
-                            rs.getString("SESSIONID"),
-                            rs.getString("USERNAME"),
-                            rs.getString("STATUS"),
-                            rs.getString("SCHEMANAME"),
+                            "SID: {}, USER: {}, STATUS: {}, SEQ: {}, SQL_TEXT: {}",
+                            rs.getString("SESS_ID"),
+                            rs.getString("USER_NAME"),
+                            rs.getString("STATE"),
+                            rs.getString("SESS_SEQ"),
                             rs.getString("SQL_TEXT"));
                 }
                 rs.close();
