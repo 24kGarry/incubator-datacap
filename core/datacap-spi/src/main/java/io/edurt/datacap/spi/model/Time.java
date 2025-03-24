@@ -2,7 +2,9 @@ package io.edurt.datacap.spi.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 public class Time
 {
     @Getter

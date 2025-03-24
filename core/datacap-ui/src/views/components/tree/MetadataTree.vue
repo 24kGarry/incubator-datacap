@@ -2,6 +2,8 @@
   <div class="relative overflow-auto" style="height: 500px; max-height: 500px; max-width: 300px;">
     <ShadcnSkeleton v-if="loading" animation class="mt-2"/>
 
+    <ShadcnAlert v-else-if="data.length === 0 && errorMessage" class="mt-2" type="error" :title="errorMessage"/>
+
     <ShadcnTree v-else-if="data.length > 0"
                 v-model="value"
                 :data="data"
@@ -41,7 +43,8 @@ export default defineComponent({
     return {
       loading: false,
       value: [],
-      data: Array<StructureModel>()
+      data: Array<StructureModel>(),
+      errorMessage: null as string | null
     }
   },
   created()
@@ -71,10 +74,7 @@ export default defineComponent({
                            })
                          }
                          else {
-                           this.$Message.error({
-                             content: response.data.message,
-                             showIcon: true
-                           })
+                           this.errorMessage = response.data.message
                          }
                        })
                        .finally(() => this.loading = false)
