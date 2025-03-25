@@ -316,22 +316,6 @@ const createAdminRouter = (router: any) => {
                 component: () => import('@/views/pages/admin/report/ReportHome.vue')
             },
             {
-                path: 'pipeline',
-                meta: {
-                    title: 'common.pipeline',
-                    isRoot: false
-                },
-                component: () => import('@/views/pages/admin/pipeline/PipelineHome.vue')
-            },
-            {
-                path: 'pipeline/info/:code?',
-                meta: {
-                    title: 'common.pipeline',
-                    isRoot: false
-                },
-                component: () => import('@/views/pages/admin/pipeline/PipelineInfo.vue')
-            },
-            {
                 path: 'chat',
                 meta: {
                     title: 'common.chat',

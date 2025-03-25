@@ -119,7 +119,6 @@ i18n:
       ApiPlugin: Plugin API
       ApiDashboard: Dashboard API
       ApiMenu: Menu API
-      ApiPipeline: Pipeline API
       ApiWorkflow: Workflow API
       NavDriver: Driver
   zh-CN:
@@ -145,7 +144,6 @@ i18n:
       ApiPlugin: 插件 API
       ApiDashboard: 仪表盘 API
       ApiMenu: 菜单 API
-      ApiPipeline: 流水线 API
       ApiWorkflow: 工作流 API
       NavDriver: 驱动
 
@@ -207,7 +205,6 @@ nav:
         - /reference/manager/datasource/home
         - /reference/manager/snippet/home
         - /reference/manager/history/query/home
-        - /reference/manager/pipeline/home
         - /reference/manager/report/home
     - NavSystem:
         - /reference/system/functions/home.md
@@ -301,8 +298,6 @@ nav:
         - /developer/filesystem/home.md
         - /developer/file/kotlin/home.md
         - /developer/notify/kotlin/home.md
-    - Other:
-        - /developer/pipeline/home.md
   - ApiHome:
     - /api/common/response.md
     - /api/common/page.md

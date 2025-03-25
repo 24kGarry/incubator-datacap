@@ -21,9 +21,6 @@ TRUNCATE TABLE `datacap_message`;
 TRUNCATE TABLE `datacap_message_chat_relation`;
 TRUNCATE TABLE `datacap_message_user_relation`;
 
-TRUNCATE TABLE `datacap_pipeline`;
-TRUNCATE TABLE `datacap_pipeline_user_relation`;
-
 TRUNCATE TABLE `datacap_report`;
 TRUNCATE TABLE `datacap_report_source_relation`;
 TRUNCATE TABLE `datacap_report_user_relation`;
