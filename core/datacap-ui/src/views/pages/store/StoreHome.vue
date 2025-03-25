@@ -1,7 +1,7 @@
 <template>
   <div class="relative min-h-screen">
     <ShadcnSpin v-if="loading" fixed/>
-    <ShadcnAlert type="warning">
+    <ShadcnAlert type="warning" class="mb-2">
       {{ $t('common.plugin.systemVersion') }}
       <ShadcnTag class="text-red-400">{{ version }}</ShadcnTag>
     </ShadcnAlert>
@@ -25,25 +25,25 @@
         </ShadcnHoverCard>
       </template>
 
-      <ShadcnTabItem v-if="metadata" :label="metadata.i18nFormat ? $t(metadata.label) : metadata.label" :value="metadata.key">
+      <ShadcnTabItem v-for="type in pluginTypes" :key="type" :label="type" :value="type">
         <div class="relative">
           <ShadcnSpace wrap size="15">
-            <ShadcnAlert v-if="metadata.description">
-              {{ metadata.i18nFormat ? $t(metadata.description) : metadata.description }}
+            <ShadcnAlert v-if="typeDescription(type)">
+              {{ typeDescription(type) }}
             </ShadcnAlert>
 
-            <ShadcnCard v-for="child in metadata.children" class="w-full">
+            <ShadcnCard v-for="plugin in pluginsByType(type)" :key="plugin.key" class="w-full">
               <ShadcnRow class="p-3 px-6 items-center">
                 <ShadcnCol span="2">
                   <!-- Logo and Name -->
                   <div class="flex flex-col items-center space-y-2 justify-between">
                     <ShadcnAvatar class="bg-transparent"
                                   size="large"
-                                  :src="child.logo"
-                                  :alt="child.i18nFormat ? $t(child.label) : child.label"/>
+                                  :src="plugin.logo"
+                                  :alt="plugin.i18nFormat ? $t(plugin.label) : plugin.label"/>
 
                     <ShadcnText type="h6">
-                      {{ child.i18nFormat ? $t(child.label) : child.label }}
+                      {{ plugin.i18nFormat ? $t(plugin.label) : plugin.label }}
                     </ShadcnText>
                   </div>
                 </ShadcnCol>
@@ -55,7 +55,7 @@
                       <!-- Description -->
                       <div class="flex flex-col space-y-4">
                         <ShadcnText class="text-sm text-gray-500" type="small">
-                          {{ child.i18nFormat ? $t(child.description) : child.description }}
+                          {{ plugin.i18nFormat ? $t(plugin.description) : plugin.description }}
                         </ShadcnText>
 
                         <!-- Support Version -->
@@ -64,7 +64,7 @@
                             {{ $t('common.plugin.list.supportVersion') }} :
                           </div>
 
-                          <ShadcnTag v-for="version in child.supportVersion" type="success" :key="version">
+                          <ShadcnTag v-for="version in plugin.supportVersion" type="success" :key="version">
                             {{ version }}
                           </ShadcnTag>
                         </div>
@@ -73,14 +73,14 @@
                         <div class="flex space-x-2 text-sm text-gray-500">
                           <div class="space-x-1">
                             {{ $t('common.plugin.version') }} :
-                            <ShadcnTag>{{ child.version }}</ShadcnTag>
+                            <ShadcnTag>{{ plugin.version }}</ShadcnTag>
                           </div>
 
-                          <ShadcnDivider v-if="child.installed" type="vertical"/>
+                          <ShadcnDivider v-if="plugin.installed" type="vertical"/>
 
-                          <div v-if="child.installed" class="space-x-1">
+                          <div v-if="plugin.installed" class="space-x-1">
                             {{ $t('common.installVersion') }}:
-                            <ShadcnTag color="#00BFFF">{{ child.installVersion }}</ShadcnTag>
+                            <ShadcnTag color="#00BFFF">{{ plugin.installVersion }}</ShadcnTag>
                           </div>
                         </div>
 
@@ -88,28 +88,21 @@
                         <div class="flex space-x-2 text-sm text-gray-500">
                           <div class="space-x-1">
                             {{ $t('common.releasedTime') }}：
-                            <ShadcnTag type="warning">{{ child.released }}</ShadcnTag>
+                            <ShadcnTag type="warning">{{ plugin.released }}</ShadcnTag>
                           </div>
 
-                          <ShadcnDivider v-if="child.installed" type="vertical"/>
+                          <ShadcnDivider v-if="plugin.installed" type="vertical"/>
 
-                          <div v-if="child.installed" class="space-x-1">
+                          <div v-if="plugin.installed" class="space-x-1">
                             {{ $t('common.installTime') }}：
-                            <ShadcnTag color="#00BFFF">{{ child.installTime }}</ShadcnTag>
+                            <ShadcnTag color="#00BFFF">{{ plugin.installTime }}</ShadcnTag>
                           </div>
                         </div>
 
                         <!-- Other -->
                         <div class="flex space-x-2 text-sm text-gray-500">
                           <div class="space-x-1">
-                            {{ $t('common.author') }}： {{ child.author }}
-                          </div>
-
-                          <ShadcnDivider type="vertical"/>
-
-                          <div class="space-x-1">
-                            {{ $t('common.type') }}：
-                            <ShadcnTag>{{ child.type }}</ShadcnTag>
+                            {{ $t('common.author') }}： {{ plugin.author }}
                           </div>
                         </div>
                       </div>
@@ -119,12 +112,12 @@
 
                 <ShadcnCol span="1">
                   <!-- Action -->
-                    <ShadcnButton :type="child.installed ? 'danger' : 'primary'" :loading="child.loading" @click="child.installed ? onUninstall(child) : onInstall(child)">
-                      <template #icon>
-                        <ShadcnIcon :icon="child.installed ? 'Trash' : 'Plus'" size="15"/>
-                      </template>
-                      {{ child.installed ? $t('common.uninstall') : $t('common.install') }}
-                    </ShadcnButton>
+                  <ShadcnButton :type="plugin.installed ? 'danger' : 'primary'" :loading="plugin.loading" @click="plugin.installed ? onUninstall(plugin) : onInstall(plugin)">
+                    <template #icon>
+                      <ShadcnIcon :icon="plugin.installed ? 'Trash' : 'Plus'" size="15"/>
+                    </template>
+                    {{ plugin.installed ? $t('common.uninstall') : $t('common.install') }}
+                  </ShadcnButton>
                 </ShadcnCol>
               </ShadcnRow>
             </ShadcnCard>
@@ -187,8 +180,40 @@ const { proxy } = getCurrentInstance()!
 const { loadingState } = useI18nHandler()
 const loading = ref(false)
 const metadata = ref<Metadata>(null)
-const activeTab = ref('plugin')
 const version = ref(PackageUtils.get('version'))
+
+// Default to first plugin type found
+const activeTab = ref('')
+
+// Get all unique plugin types
+const pluginTypes = computed(() => {
+  if (!metadata.value?.children?.length) {
+    return []
+  }
+
+  const types = new Set(metadata.value.children.map(plugin => plugin.type))
+  return Array.from(types)
+})
+
+// Group plugins by type
+const pluginsByType = (type: string) => {
+  if (!metadata.value?.children?.length) {
+    return []
+  }
+  return metadata.value.children.filter(plugin => plugin.type === type)
+}
+
+// Get description for a type (could be extended to add custom descriptions per type)
+const typeDescription = (type: string) => {
+  const defaultDescriptions: Record<string, string> = {
+    'FileSystem': 'File system plugins provide storage integrations',
+    'Connector': 'Connector plugins enable data source connections',
+    'Visualization': 'Visualization plugins provide data display capabilities'
+    // Add more defaults for other types
+  }
+
+  return defaultDescriptions[type] || `${ type } plugins for DataCap`
+}
 
 const metadataUrl = computed({
   get: () => {
@@ -213,6 +238,13 @@ watch(loadingState, async (newVal) => {
   }
 })
 
+watch(pluginTypes, (newTypes) => {
+  // Set active tab to first type when types are loaded
+  if (newTypes.length && !activeTab.value) {
+    activeTab.value = newTypes[0]
+  }
+})
+
 const loadMetadata = async () => {
   loading.value = true
   try {
@@ -232,19 +264,21 @@ const loadMetadata = async () => {
     const installResponse = await PluginService.getPlugins()
     if (!installResponse.status) {
       // @ts-ignore
-      proxy?.$Message.error({ content: response.message, showIcon: true })
+      proxy?.$Message.error({ content: installResponse.message, showIcon: true })
       return
     }
 
-    // 绑定安装信息
     // Bind installation information
-    metadata.value.children.map(item => {
+    metadata.value.children.forEach(item => {
+      item.loading = false
       installResponse.data.some((installedPlugin: { key: string, loadTime: string, version: string }) => {
         if (installedPlugin.key === item.key) {
           item.installed = true
           item.installTime = installedPlugin.loadTime
           item.installVersion = installedPlugin.version
+          return true
         }
+        return false
       })
     })
   }
@@ -269,7 +303,6 @@ const loadMetadata = async () => {
   }
 }
 
-// 安装插件
 // Install plugin
 const onInstall = async (item: MetadataItem) => {
   if (item.loading) {
@@ -294,7 +327,6 @@ const onInstall = async (item: MetadataItem) => {
   }
 }
 
-// 卸载插件
 // Uninstall plugin
 const onUninstall = async (item: MetadataItem) => {
   if (item.loading) {
