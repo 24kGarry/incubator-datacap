@@ -5,13 +5,10 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Maps;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.captcha.entity.ResultEntity;
-import io.edurt.datacap.service.entity.PipelineEntity;
 import io.edurt.datacap.service.loader.CaptchaCacheLoader;
-import io.edurt.datacap.service.security.UserDetailsService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,9 +16,7 @@ import javax.annotation.PostConstruct;
 
 import java.io.File;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -69,9 +64,6 @@ public class InitializerConfigure
 
     @Getter
     private LoadingCache<Long, ResultEntity> cache;
-
-    @Getter
-    private BlockingQueue<PipelineEntity> taskQueue;
 
     @Getter
     private Map<String, ExecutorService> taskExecutors;
@@ -150,41 +142,6 @@ public class InitializerConfigure
         log.info("=========== Datacap sql parser configure ===========");
         log.info("sql parser default engine [ {} ]", this.sqlParserDefaultEngine);
 
-        this.taskQueue = new LinkedBlockingQueue<>(this.maxQueue);
         this.taskExecutors = Maps.newConcurrentMap();
-    }
-
-    /**
-     * Check if the task queue is full.
-     *
-     * @return true if the task queue is full, false otherwise
-     */
-    public boolean isQueueFull()
-    {
-        if (this.taskQueue.size() >= this.maxQueue) {
-            return true;
-        }
-        return false;
-    }
-
-    public String getAvatarPath()
-    {
-        if (StringUtils.isNotEmpty(fsConfigure.getEndpoint())) {
-            return fsConfigure.getEndpoint();
-        }
-        return avatarPath.replace("{username}", UserDetailsService.getUser().getUsername());
-    }
-
-    /**
-     * Checks if the task is ready for submission.
-     *
-     * @return true if the number of task executors is equal to or greater than the maximum allowed running tasks, false otherwise
-     */
-    public boolean isSubmit()
-    {
-        if (this.taskExecutors.size() >= this.maxRunning) {
-            return true;
-        }
-        return false;
     }
 }
