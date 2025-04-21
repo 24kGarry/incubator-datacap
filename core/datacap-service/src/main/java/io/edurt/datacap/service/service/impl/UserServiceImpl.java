@@ -29,6 +29,7 @@ import io.edurt.datacap.service.entity.itransient.user.UserEditorEntity;
 import io.edurt.datacap.service.initializer.InitializerConfigure;
 import io.edurt.datacap.service.model.AiModel;
 import io.edurt.datacap.service.record.TreeRecord;
+import io.edurt.datacap.service.repository.BaseRepository;
 import io.edurt.datacap.service.repository.RoleRepository;
 import io.edurt.datacap.service.repository.SourceRepository;
 import io.edurt.datacap.service.repository.UserRepository;
@@ -115,7 +116,7 @@ public class UserServiceImpl
             Set<RoleEntity> roles = new HashSet<>();
             if (ObjectUtils.isEmpty(userRoles)) {
                 Optional<RoleEntity> userRoleOptional = roleRepository.findByName("User");
-                if (!userRoleOptional.isPresent()) {
+                if (userRoleOptional.isEmpty()) {
                     return CommonResponse.failure(ServiceState.USER_ROLE_NOT_FOUND);
                 }
                 roles.add(userRoleOptional.get());
@@ -133,6 +134,15 @@ public class UserServiceImpl
             configure.setRoles(configure.getRoles());
         }
         return CommonResponse.success(userRepository.save(configure));
+    }
+
+    @Override
+    public CommonResponse<UserEntity> saveOrUpdate(BaseRepository<UserEntity, Long> repository, UserEntity configure)
+    {
+        if (configure.getId() != null) {
+            configure.setPassword(encoder.encode(configure.getPassword()));
+        }
+        return this.saveOrUpdate(configure);
     }
 
     @AuditUserLog
