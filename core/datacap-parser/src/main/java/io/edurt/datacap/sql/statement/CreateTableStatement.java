@@ -5,11 +5,13 @@ import io.edurt.datacap.sql.node.element.TableElement;
 import io.edurt.datacap.sql.node.option.TableOption;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Getter
 @Setter
+@ToString
 @SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public class CreateTableStatement
         extends SQLStatement

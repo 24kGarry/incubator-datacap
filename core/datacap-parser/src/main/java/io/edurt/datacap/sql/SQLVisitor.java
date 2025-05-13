@@ -39,7 +39,7 @@ public class SQLVisitor
     @Override
     public SQLStatement visitSingleStatement(SqlBaseParser.SingleStatementContext ctx)
     {
-        return visit(ctx.statement(0));
+        return visit(ctx.statement());
     }
 
     @Override
@@ -274,6 +274,28 @@ public class SQLVisitor
 
                     if (name != null && value != null) {
                         options.add(new TableOption(name, value));
+                    }
+                }
+                // 处理Flink SQL的WITH子句
+                else if (optionCtx.WITH() != null && optionCtx.tableProperty() != null) {
+                    for (SqlBaseParser.TablePropertyContext propCtx : optionCtx.tableProperty()) {
+                        String name = null;
+                        String value = null;
+
+                        if (propCtx.STRING() != null && propCtx.STRING().size() >= 2) {
+                            // 处理 'key' = 'value' 形式
+                            name = unquoteString(propCtx.STRING(0).getText());
+                            value = unquoteString(propCtx.STRING(1).getText());
+                        }
+                        else if (propCtx.identifier() != null && propCtx.STRING() != null) {
+                            // 处理 identifier = 'value' 形式
+                            name = propCtx.identifier().getText();
+                            value = unquoteString(propCtx.getText());
+                        }
+
+                        if (name != null && value != null) {
+                            options.add(new TableOption(name, value));
+                        }
                     }
                 }
             }
