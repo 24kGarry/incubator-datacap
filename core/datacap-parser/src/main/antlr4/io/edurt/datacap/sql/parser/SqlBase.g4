@@ -1,6 +1,15 @@
 grammar SqlBase;
 
-singleStatement: (statement)* EOF;
+// 顶层规则，允许多个语句
+sqlStatements
+    : (singleStatement SEMICOLON?)*
+    EOF
+    ;
+
+// 每个单独的语句
+singleStatement
+    : statement
+    ;
 
 // Keywords
 SELECT: [Ss][Ee][Ll][Ee][Cc][Tt];
@@ -85,6 +94,38 @@ MODIFY: [Mm][Oo][Dd][Ii][Ff][Yy];
 ENGINE: [Ee][Nn][Gg][Ii][Nn][Ee];
 VERSION: [Vv][Ee][Rr][Ss][Ii][Oo][Nn];
 
+// Flink-specific keywords - added as optional
+WITH: [Ww][Ii][Tt][Hh];
+WATERMARK: [Ww][Aa][Tt][Ee][Rr][Mm][Aa][Rr][Kk];
+SYSTEM: [Ss][Yy][Ss][Tt][Ee][Mm];
+FUNCTION: [Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn];
+FUNCTIONS: [Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn][Ss];
+OVER: [Oo][Vv][Ee][Rr];
+PARTITION: [Pp][Aa][Rr][Tt][Ii][Tt][Ii][Oo][Nn];
+PARTITIONED: [Pp][Aa][Rr][Tt][Ii][Tt][Ii][Oo][Nn][Ee][Dd];
+RANGE: [Rr][Aa][Nn][Gg][Ee];
+ROWS: [Rr][Oo][Ww][Ss];
+UNBOUNDED: [Uu][Nn][Bb][Oo][Uu][Nn][Dd][Ee][Dd];
+PRECEDING: [Pp][Rr][Ee][Cc][Ee][Dd][Ii][Nn][Gg];
+FOLLOWING: [Ff][Oo][Ll][Ll][Oo][Ww][Ii][Nn][Gg];
+CURRENT: [Cc][Uu][Rr][Rr][Ee][Nn][Tt];
+ROW: [Rr][Oo][Ww];
+CATALOG: [Cc][Aa][Tt][Aa][Ll][Oo][Gg];
+CATALOGS: [Cc][Aa][Tt][Aa][Ll][Oo][Gg][Ss];
+EXPLAIN: [Ee][Xx][Pp][Ll][Aa][Ii][Nn];
+PLAN: [Pp][Ll][Aa][Nn];
+FOR: [Ff][Oo][Rr];
+WINDOW: [Ww][Ii][Nn][Dd][Oo][Ww];
+DESCRIBE: [Dd][Ee][Ss][Cc][Rr][Ii][Bb][Ee];
+LANGUAGE: [Ll][Aa][Nn][Gg][Uu][Aa][Gg][Ee];
+RENAME: [Rr][Ee][Nn][Aa][Mm][Ee];
+TO: [Tt][Oo];
+ENFORCED: [Ee][Nn][Ff][Oo][Rr][Cc][Ee][Dd];
+FORMAT: [Ff][Oo][Rr][Mm][Aa][Tt];
+
+// Terminator
+SEMICOLON: ';';
+
 tableOptions
     : tableOption+
     ;
@@ -95,6 +136,13 @@ tableOption
     | COLLATE '=' STRING
     | AUTO_INCREMENT '=' INTEGER_VALUE
     | COMMENT '=' STRING
+    /* add Flink specific options */
+    | WITH '(' tableProperty (',' tableProperty)* ')'
+    ;
+
+tableProperty
+    : STRING '=' STRING
+    | identifier '=' STRING
     ;
 
 statement
@@ -107,11 +155,26 @@ statement
     | dropStatement
     | useStatement
     | showStatement
+    /* add Flink specific statements */
+    | explainStatement
+    | describeStatement
     ;
 
 // USE statement
 useStatement
     : USE databaseName
+    /* add Flink specific catalog usage */
+    | USE CATALOG catalogName
+    ;
+
+// EXPLAIN statement - Flink specific
+explainStatement
+    : EXPLAIN PLAN? FOR? statement
+    ;
+
+// DESCRIBE statement - Flink specific
+describeStatement
+    : (DESCRIBE | DESC) tableName
     ;
 
 // SELECT statement
@@ -143,6 +206,49 @@ querySpecification
       whereClause?
       groupByClause?
       havingClause?
+      /* add Flink specific window clause */
+      windowClause?
+    ;
+
+windowClause
+    : WINDOW namedWindow (',' namedWindow)*
+    ;
+
+namedWindow
+    : identifier AS windowSpec
+    ;
+
+windowSpec
+    : '(' windowName? partitionByClause? orderByClause? frameClause? ')'
+    ;
+
+windowName
+    : identifier
+    ;
+
+partitionByClause
+    : PARTITION BY expression (',' expression)*
+    ;
+
+frameClause
+    : (RANGE | ROWS)
+      ( UNBOUNDED PRECEDING
+      | expression PRECEDING
+      | CURRENT ROW
+      | BETWEEN frameStart AND frameEnd
+      )
+    ;
+
+frameStart
+    : UNBOUNDED PRECEDING
+    | expression PRECEDING
+    | CURRENT ROW
+    ;
+
+frameEnd
+    : UNBOUNDED FOLLOWING
+    | expression FOLLOWING
+    | CURRENT ROW
     ;
 
 selectElements
@@ -153,6 +259,12 @@ selectElement
     : (tableName '.')? (columnName | '*') (AS? alias)?
     | expression (AS? alias)?
     | caseExpression (AS? alias)?
+    /* add Flink specific window functions */
+    | overWindowExpression (AS? alias)?
+    ;
+
+overWindowExpression
+    : expression OVER windowSpec
     ;
 
 caseExpression
@@ -226,27 +338,57 @@ createStatement
     | createViewStatement
     | createIndexStatement
     | createDatabaseStatement
+    /* add Flink specific create statements */
+    | createFunctionStatement
+    | createCatalogStatement
+    ;
+
+createCatalogStatement
+    : CREATE CATALOG catalogName WITH '(' tableProperty (',' tableProperty)* ')'
     ;
 
 createDatabaseStatement
     : CREATE DATABASE (IF NOT EXISTS)? databaseName
+    /* add Flink specific database properties */
+    | CREATE DATABASE (IF NOT EXISTS)? databaseName COMMENT STRING
+      (WITH '(' tableProperty (',' tableProperty)* ')')?
     ;
 
 createTableStatement
     : CREATE (TEMP | TEMPORARY)? TABLE (IF NOT EXISTS)? tableName
       '(' tableElement (',' tableElement)* ')'
       tableOptions?
+    /* add Flink specific table options */
+    | CREATE (TEMP | TEMPORARY)? TABLE (IF NOT EXISTS)? tableName
+      '(' tableElement (',' tableElement)* ')'
+      (COMMENT STRING)?
+      (PARTITIONED BY '(' columnName (',' columnName)* ')')?
+      (WITH '(' tableProperty (',' tableProperty)* ')')?
     ;
 
 createViewStatement
     : CREATE (OR REPLACE)? VIEW tableName
       ('(' columnName (',' columnName)* ')')?
       AS selectStatement
+    /* add Flink specific view options */
+    | CREATE (OR REPLACE)? VIEW tableName
+      ('(' columnName (',' columnName)* ')')?
+      (COMMENT STRING)?
+      AS selectStatement
     ;
 
 createIndexStatement
     : CREATE (UNIQUE)? INDEX indexName
       ON tableName '(' indexColumn (',' indexColumn)* ')'
+    ;
+
+createFunctionStatement
+    : CREATE (TEMPORARY | TEMP)? (SYSTEM)? FUNCTION
+      (IF NOT EXISTS)? functionName
+      AS className=STRING
+      (LANGUAGE language=STRING)?
+      (USING jarFile=STRING)?
+      (WITH '(' tableProperty (',' tableProperty)* ')')?
     ;
 
 indexColumn
@@ -256,6 +398,8 @@ indexColumn
 tableElement
     : columnDefinition
     | tableConstraint
+    /* add Flink specific elements */
+    | watermarkDefinition
     ;
 
 columnDefinition
@@ -269,6 +413,12 @@ columnConstraint
     | DEFAULT defaultValue
     | (CONSTRAINT constraintName)? foreignKeyClause
     | (CONSTRAINT constraintName)? checkConstraint
+    /* add Flink specific constraints */
+    | COMMENT STRING
+    ;
+
+watermarkDefinition
+    : WATERMARK FOR columnName AS expression
     ;
 
 tableConstraint
@@ -281,7 +431,7 @@ tableConstraint
     ;
 
 primaryKeyConstraint
-    : PRIMARY KEY '(' columnName (',' columnName)* ')'
+    : PRIMARY KEY '(' columnName (',' columnName)* ')' (NOT ENFORCED)?
     ;
 
 uniqueConstraint
@@ -314,11 +464,25 @@ checkConstraint
 // ALTER statement
 alterStatement
     : alterTableStatement
+    /* add Flink specific alter statements */
+    | alterFunctionStatement
+    | alterDatabaseStatement
     ;
 
 alterTableStatement
     : ALTER TABLE tableName
       alterSpecification (',' alterSpecification)*
+    ;
+
+alterFunctionStatement
+    : ALTER (TEMPORARY | TEMP)? FUNCTION
+      (IF EXISTS)? functionName
+      AS className=STRING
+      (LANGUAGE language=STRING)?
+    ;
+
+alterDatabaseStatement
+    : ALTER DATABASE databaseName SET '(' tableProperty (',' tableProperty)* ')'
     ;
 
 alterSpecification
@@ -329,6 +493,10 @@ alterSpecification
     | MODIFY COLUMN? columnDefinition
     | ALTER COLUMN columnName SET DEFAULT expression
     | ALTER COLUMN columnName DROP DEFAULT
+    /* add Flink specific alterations */
+    | ADD WATERMARK FOR columnName AS expression
+    | DROP WATERMARK
+    | RENAME TO tableName
     ;
 
 // DROP statement
@@ -337,6 +505,9 @@ dropStatement
     | dropViewStatement
     | dropIndexStatement
     | dropDatabaseStatement
+    /* add Flink specific drop statements */
+    | dropFunctionStatement
+    | dropCatalogStatement
     ;
 
 dropTableStatement
@@ -355,11 +526,22 @@ dropDatabaseStatement
     : DROP DATABASE (IF EXISTS)? databaseName
     ;
 
+dropFunctionStatement
+    : DROP (TEMPORARY | TEMP)? FUNCTION (IF EXISTS)? functionName
+    ;
+
+dropCatalogStatement
+    : DROP CATALOG (IF EXISTS)? catalogName
+    ;
+
 // SHOW statement
 showStatement
     : showDatabasesStatement
     | showTablesStatement
     | showColumnsStatement
+    /* add Flink specific show statements */
+    | showFunctionsStatement
+    | showCatalogsStatement
     ;
 
 showDatabasesStatement
@@ -379,6 +561,14 @@ showColumnsStatement
       (LIKE STRING | WHERE expression)?
     ;
 
+showFunctionsStatement
+    : SHOW FUNCTIONS
+    ;
+
+showCatalogsStatement
+    : SHOW CATALOGS
+    ;
+
 // FROM clause and JOINs
 fromClause
     : FROM tableSource (',' tableSource)*
@@ -392,6 +582,8 @@ tableSource
 tablePrimary
     : tableName (AS? alias)?
     | '(' selectStatement ')' (AS? alias)?
+    /* add Flink specific function table */
+    | functionName '(' (expression (',' expression)*)? ')' (AS? alias)?
     ;
 
 joinedTable
@@ -441,6 +633,11 @@ expression
      | expression '-' expression                            #SubtractExpression
      | expression '*' expression                            #MultiplyExpression
      | expression '/' expression                            #DivideExpression
+     /* add Flink specific expressions */
+     | expression '%' expression                            #ModuloExpression
+     | '-' expression                                       #UnaryMinusExpression
+     | '+' expression                                       #UnaryPlusExpression
+     | expression '||' expression                           #ConcatExpression
      ;
 
  primary
@@ -476,6 +673,12 @@ functionCall
     | CAST '(' expression AS dataType ')'
     | EXTRACT '(' identifier FROM expression ')'
     | VERSION '(' ')'
+    /* add Flink specific window functions */
+    | windowFunction
+    ;
+
+windowFunction
+    : functionName '(' expression ')' OVER windowSpec
     ;
 
 // Common elements
@@ -487,6 +690,7 @@ defaultValue
     ;
 
 // Names and Identifiers
+catalogName: identifier;
 columnName: identifier;
 tableName: (databaseName '.')? identifier;
 databaseName: identifier;
@@ -508,10 +712,20 @@ quotedIdentifier
 // Data Types
 dataType
     : baseDataType ('(' INTEGER_VALUE (',' INTEGER_VALUE)* ')')?
+    /* add Flink specific data types */
+    | complexDataType
+    ;
+
+complexDataType
+    : ROW '<' fieldDefinition (',' fieldDefinition)* '>'
+    ;
+
+fieldDefinition
+    : identifier dataType
     ;
 
 baseDataType
-    : CHARACTER | VARCHAR | BINARY | VARBINARY
+    : CHARACTER | CHAR | VARCHAR | BINARY | VARBINARY
     | TINYINT | SMALLINT | INTEGER | INT | BIGINT
     | FLOAT | REAL | DOUBLE | DECIMAL | NUMERIC
     | DATE | TIME | TIMESTAMP | DATETIME
@@ -527,6 +741,7 @@ DISTINCT: [Dd][Ii][Ss][Tt][Ii][Nn][Cc][Tt];
 EXCEPT: [Ee][Xx][Cc][Ee][Pp][Tt];
 INTERSECT: [Ii][Nn][Tt][Ee][Rr][Ss][Ee][Cc][Tt];
 CHARACTER: [Cc][Hh][Aa][Rr][Aa][Cc][Tt][Ee][Rr];
+CHAR: [Cc][Hh][Aa][Rr];
 VARCHAR: [Vv][Aa][Rr][Cc][Hh][Aa][Rr];
 BINARY: [Bb][Ii][Nn][Aa][Rr][Yy];
 VARBINARY: [Vv][Aa][Rr][Bb][Ii][Nn][Aa][Rr][Yy];
@@ -557,13 +772,14 @@ RESTRICT: [Rr][Ee][Ss][Tt][Rr][Ii][Cc][Tt];
 CASCADE: [Cc][Aa][Ss][Cc][Aa][Dd][Ee];
 NO: [Nn][Oo];
 ACTION: [Aa][Cc][Tt][Ii][Oo][Nn];
+UNBOUNDED_FOLLOWING: [Uu][Nn][Bb][Oo][Uu][Nn][Dd][Ee][Dd]'_'[Ff][Oo][Ll][Ll][Oo][Ww][Ii][Nn][Gg];
 
 // Non-reserved words that can be used as identifiers
 nonReservedWord
     : TEMP | TEMPORARY | REPLACE | EXISTS | IF
     | CONSTRAINT | COLUMN | DATABASE | INDEX
     | RESTRICT | CASCADE | NO | ACTION
-    | CHARACTER | VARCHAR | BINARY | VARBINARY
+    | CHARACTER | CHAR | VARCHAR | BINARY | VARBINARY
     | TINYINT | SMALLINT | INTEGER | INT | BIGINT
     | FLOAT | REAL | DOUBLE | DECIMAL | NUMERIC
     | DATE | TIME | TIMESTAMP | DATETIME
@@ -573,6 +789,13 @@ nonReservedWord
     | DATABASES | TABLES | COLUMNS
     | CREATE_TIME | UPDATE_TIME
     | VERSION
+    /* add Flink specific non-reserved words */
+    | WITH | WATERMARK | SYSTEM | FUNCTION | FUNCTIONS
+    | OVER | PARTITION | PARTITIONED | RANGE | ROWS | UNBOUNDED
+    | PRECEDING | FOLLOWING | CURRENT | ROW
+    | WINDOW | CATALOG | CATALOGS | EXPLAIN | PLAN | FOR
+    | DESCRIBE | DESC | LANGUAGE | RENAME | TO
+    | ENFORCED | FORMAT | NOT
     ;
 
 // Lexer rules
