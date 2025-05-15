@@ -1,6 +1,7 @@
 package io.edurt.datacap.plugin
 
 import io.edurt.datacap.spi.PluginService
+import io.edurt.datacap.spi.generator.definition.TableDefinition
 import io.edurt.datacap.spi.model.Configure
 import io.edurt.datacap.spi.model.Response
 
@@ -286,6 +287,136 @@ class StarRocksService : PluginService {
         return this.execute(
             configure,
             sql.replace("{0}", keyword!!)
+        )
+    }
+
+    override fun getColumn(configure: Configure?, definition: TableDefinition?): Response {
+        val column = definition!!.columns.stream().findAny()
+
+        require(!column.isEmpty) { "Column must be specified" }
+
+        val sql = """SELECT
+                            detail.*
+                        FROM
+                            (
+                            -- 列信息：优化了类型解析
+                            SELECT
+                                'column' as type_name,
+                                COLUMN_NAME as object_name,
+                                SUBSTRING_INDEX(COLUMN_TYPE, '(', 1) as object_data_type,
+                                -- 更高效的类型提取
+                                                NULLIF(
+                                                    SUBSTRING_INDEX(SUBSTRING_INDEX(COLUMN_TYPE, '(', -1), ')', 1),
+                                                    COLUMN_TYPE
+                                                ) as object_length,
+                                -- 更高效的长度提取
+                                IS_NULLABLE as object_nullable,
+                                COLUMN_DEFAULT as object_default_value,
+                                COLUMN_COMMENT as object_comment,
+                                ORDINAL_POSITION as object_position,
+                                '' as object_definition
+                            FROM
+                                information_schema.COLUMNS c
+                            WHERE
+                                TABLE_SCHEMA = '{0}'
+                                AND TABLE_NAME = '{1}'
+                                AND COLUMN_NAME = '{2}'
+                        UNION ALL
+                            -- 主键信息：添加了索引以提升性能
+                            SELECT
+                                'primary' as type_name,
+                                COLUMN_NAME as object_name,
+                                '' as object_data_type,
+                                NULL as object_length,
+                                '' as object_nullable,
+                                '' as object_default_value,
+                                '' as object_comment,
+                                0 as object_position,
+                                CONCAT('PRIMARY KEY on (',
+                                                    GROUP_CONCAT(COLUMN_NAME ORDER BY ORDINAL_POSITION),
+                                                    ')'
+                                                ) as object_definition
+                            FROM
+                                information_schema.columns
+                            WHERE
+                                TABLE_SCHEMA = '{0}'
+                                AND TABLE_NAME = '{1}'
+                                AND COLUMN_KEY = 'PRI'
+                                AND COLUMN_NAME = '{2}'
+                            GROUP BY
+                                TABLE_SCHEMA,
+                                TABLE_NAME,
+                                COLUMN_KEY,
+                                COLUMN_NAME
+                        UNION ALL
+                            -- 索引信息：优化了索引名称的处理
+                            SELECT
+                            'index' as type_name,
+                            COLUMN_NAME as object_name,
+                            '' as object_data_type,
+                            NULL as object_length,
+                            '' as object_nullable,
+                            '' as object_default_value,
+                            '' as object_comment,
+                            0 as object_position,
+                            CONCAT(
+                                CASE NON_UNIQUE
+                                    WHEN 1 THEN 'Non-unique'
+                                    ELSE 'Unique'
+                                END,
+                                ' index on ',
+                                COLUMN_NAME
+                            ) as object_definition
+                        FROM
+                            information_schema.STATISTICS
+                        WHERE
+                            TABLE_SCHEMA = '{0}'
+                            AND TABLE_NAME = '{1}'
+                            AND COLUMN_NAME = '{2}'
+                        GROUP BY
+                            TABLE_SCHEMA,
+                            TABLE_NAME,
+                            COLUMN_NAME,
+                            NON_UNIQUE
+                        UNION ALL
+                            -- 触发器信息：保持原有逻辑
+                            SELECT
+                                'trigger' as type_name,
+                                TRIGGER_NAME as object_name,
+                                '' as object_data_type,
+                                NULL as object_length,
+                                '' as object_nullable,
+                                '' as object_default_value,
+                                '' as object_comment,
+                                0 as object_position,
+                                CONCAT(
+                                                    'TRIGGER ',
+                                                    ACTION_TIMING, ' ',
+                                                    EVENT_MANIPULATION
+                                                ) as object_definition
+                            FROM
+                                information_schema.TRIGGERS
+                            WHERE
+                                EVENT_OBJECT_SCHEMA = '{0}'
+                                AND EVENT_OBJECT_TABLE = '{1}'
+                                        ) detail
+                        ORDER BY
+                            CASE type_name
+                                WHEN 'column' THEN 1
+                                WHEN 'primary' THEN 2
+                                WHEN 'index' THEN 3
+                                WHEN 'trigger' THEN 4
+                                ELSE 5
+                            END,
+                            object_position,
+                            object_name;"""
+
+        return this.getResponse(
+            sql.replace("{0}", definition.database)
+                .replace("{1}", definition.name)
+                .replace("{2}", column.get().name),
+            configure,
+            definition
         )
     }
 }
