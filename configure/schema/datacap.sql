@@ -985,7 +985,7 @@ CREATE TABLE `datacap_user` (
   `code` varchar(200) DEFAULT NULL,
   `name` varchar(100) DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
-  `notification_types` varchar(200) DEFAULT NULL,
+  `notify_configure` TEXT DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
