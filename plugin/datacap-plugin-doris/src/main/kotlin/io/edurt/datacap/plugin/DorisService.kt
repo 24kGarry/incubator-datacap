@@ -1,10 +1,12 @@
 package io.edurt.datacap.plugin
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings
 import io.edurt.datacap.spi.PluginService
 import io.edurt.datacap.spi.generator.definition.TableDefinition
 import io.edurt.datacap.spi.model.Configure
 import io.edurt.datacap.spi.model.Response
 
+@SuppressFBWarnings(value = ["NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE"])
 class DorisService : PluginService
 {
     override fun connectType(): String
@@ -17,11 +19,13 @@ class DorisService : PluginService
         return "com.mysql.cj.jdbc.Driver"
     }
 
-    override fun isSupportMeta(): Boolean {
+    override fun isSupportMeta(): Boolean
+    {
         return true
     }
 
-    override fun getTables(configure: Configure?, database: String?): Response {
+    override fun getTables(configure: Configure?, database: String?): Response
+    {
         val sql = """SELECT
                         CASE
                             WHEN type = 'BASE TABLE' THEN 'table'
@@ -84,10 +88,11 @@ class DorisService : PluginService
                         END,
                         object_name;"""
 
-        return this.execute(configure, sql.replace("{0}", database!!))
+        return this.execute(configure, sql.replace("{0}", database !!))
     }
 
-    override fun getColumns(configure: Configure?, database: String?, table: String?): Response {
+    override fun getColumns(configure: Configure?, database: String?, table: String?): Response
+    {
         val sql = """SELECT detail.*
                         FROM (
                             -- 列信息
@@ -186,12 +191,13 @@ class DorisService : PluginService
 
         return this.execute(
             configure,
-            sql.replace("{0}", database!!)
-                .replace("{1}", table!!)
+            sql.replace("{0}", database !!)
+                .replace("{1}", table !!)
         )
     }
 
-    override fun getSuggests(configure: Configure?, keyword: String?): Response {
+    override fun getSuggests(configure: Configure?, keyword: String?): Response
+    {
         val sql = """SELECT * FROM (
                         -- 数据库
                         SELECT
@@ -289,14 +295,15 @@ class DorisService : PluginService
                         ORDER BY sort_order, object_name limit 10;"""
         return this.execute(
             configure,
-            sql.replace("{0}", keyword!!)
+            sql.replace("{0}", keyword !!)
         )
     }
 
-    override fun getColumn(configure: Configure?, definition: TableDefinition?): Response {
-        val column = definition!!.columns.stream().findAny()
+    override fun getColumn(configure: Configure?, definition: TableDefinition?): Response
+    {
+        val column = definition !!.columns.stream().findAny()
 
-        require(!column.isEmpty) { "Column must be specified" }
+        require(! column.isEmpty) { "Column must be specified" }
 
         val sql = """SELECT
                             detail.*
