@@ -287,6 +287,11 @@ export default defineComponent({
           const pluginsResponse = await getPluginsPromise
           if (pluginsResponse.status) {
             this.plugins = pluginsResponse.data
+
+            const hasJsonConvert = this.plugins.filter(value => value.type === 'Convert' && value.name === 'JsonConvert').length > 0
+            if (!hasJsonConvert) {
+              this.testInfo.message = 'JsonConvert plugin is required'
+            }
           }
           this.formState = SourceRequest.of()
         }
