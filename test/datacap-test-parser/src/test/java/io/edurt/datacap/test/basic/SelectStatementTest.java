@@ -1,6 +1,7 @@
 package io.edurt.datacap.test.basic;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.edurt.datacap.sql.SQLParseException;
 import io.edurt.datacap.sql.SQLParser;
 import io.edurt.datacap.sql.node.Expression;
 import io.edurt.datacap.sql.node.clause.JoinClause;
@@ -146,7 +147,7 @@ public class SelectStatementTest
         assertEquals("age_group", selectElements.get(1).getAlias());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = SQLParseException.class)
     public void testInvalidSQL()
     {
         String sql = "SELECT * FORM users";

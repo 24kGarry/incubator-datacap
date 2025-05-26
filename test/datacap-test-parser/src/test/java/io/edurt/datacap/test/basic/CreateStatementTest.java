@@ -59,12 +59,52 @@ public class CreateStatementTest
                 "  COL4\n" +
                 "FROM\n" +
                 "  transform_table;";
-        SQLStatement stmt = SQLParser.parse(sql);
 
+        // 解析多个语句
+        // Parse multiple statements
+        List<SQLStatement> statements = SQLParser.parseMultiple(sql);
+
+        System.out.println("Total statements parsed: " + statements.size());
+
+        for (int i = 0; i < statements.size(); i++) {
+            SQLStatement stmt = statements.get(i);
+            System.out.println("Statement " + (i + 1) + ": " + stmt.getClass().getSimpleName());
+
+            if (stmt instanceof CreateTableStatement) {
+                CreateTableStatement createStmt = (CreateTableStatement) stmt;
+                System.out.println("Table name: " + createStmt.getTableName());
+                List<TableOption> options = createStmt.getOptions();
+                System.out.println("Options: " + options);
+                System.out.println("---");
+            }
+        }
+    }
+
+    @Test
+    public void testSingleCreateTable()
+    {
+        String singleSql = "CREATE TABLE source_table (\n" +
+                "  COL1 INT,\n" +
+                "  COL2 TIMESTAMP(0),\n" +
+                "  COL3 VARCHAR(14),\n" +
+                "  COL4 CHAR(1),\n" +
+                "  PRIMARY KEY (COL1) NOT ENFORCED\n" +
+                ") WITH\n" +
+                "  (\n" +
+                "    'connector' = 'mysql',\n" +
+                "    'hostname' = '127.0.0.1',\n" +
+                "    'port' = '3306',\n" +
+                "    'username' = 'root',\n" +
+                "    'password' = 'root',\n" +
+                "    'database' = 'default',\n" +
+                "    'table' = 'example'\n" +
+                "  );";
+
+        SQLStatement stmt = SQLParser.parse(singleSql);
         assertTrue(stmt instanceof CreateTableStatement);
         CreateTableStatement statement = (CreateTableStatement) stmt;
 
         List<TableOption> options = statement.getOptions();
-        System.out.println(options);
+        System.out.println("Single statement options: " + options);
     }
 }
