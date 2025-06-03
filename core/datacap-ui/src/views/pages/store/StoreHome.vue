@@ -40,7 +40,9 @@
                     <ShadcnAvatar class="bg-transparent"
                                   size="large"
                                   :src="plugin.logo"
-                                  :alt="plugin.i18nFormat ? $t(plugin.label) : plugin.label"/>
+                                  :alt="plugin.i18nFormat ? $t(plugin.label) : plugin.label"
+                                  @click="onVisibleInfo(plugin, true)">
+                    </ShadcnAvatar>
 
                     <ShadcnText type="h6">
                       {{ plugin.i18nFormat ? $t(plugin.label) : plugin.label }}
@@ -126,6 +128,12 @@
       </ShadcnTabItem>
     </ShadcnTab>
   </div>
+
+  <PluginInfo v-if="infoVisible && info"
+              :info="info"
+              :is-visible="infoVisible"
+              @close="onVisibleInfo(null, false)">
+  </PluginInfo>
 </template>
 
 <script setup lang="ts">
@@ -133,6 +141,7 @@ import { computed, getCurrentInstance, onBeforeMount, ref, watch } from 'vue'
 import { useI18nHandler } from '@/i18n/I18n'
 import { PackageUtils } from '@/utils/package.ts'
 import PluginService from '@/services/plugin.ts'
+import PluginInfo from '@/views/pages/store/components/PluginInfo.vue'
 
 interface MetadataItem
 {
@@ -181,6 +190,8 @@ const { loadingState } = useI18nHandler()
 const loading = ref(false)
 const metadata = ref<Metadata>(null)
 const version = ref(PackageUtils.get('version'))
+const info = ref<MetadataItem>(null)
+const infoVisible = ref(false)
 
 // Default to first plugin type found
 const activeTab = ref('')
@@ -378,6 +389,13 @@ const onSave = async () => {
       content: proxy?.$t('common.error'),
       showIcon: true
     })
+  }
+}
+
+const onVisibleInfo = (item: MetadataItem, opened?: boolean) => {
+  infoVisible.value = opened
+  if (opened) {
+    info.value = item
   }
 }
 
