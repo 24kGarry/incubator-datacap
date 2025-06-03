@@ -4,17 +4,22 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.response.CommonResponse;
 import io.edurt.datacap.plugin.PluginManager;
 import io.edurt.datacap.plugin.PluginMetadata;
+import io.edurt.datacap.plugin.PluginType;
+import io.edurt.datacap.service.common.PluginUtils;
 import lombok.Data;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/v1/plugin")
@@ -22,15 +27,26 @@ import java.util.List;
 public class PluginController
 {
     private final PluginManager pluginManager;
+    private final Environment environment;
 
-    public PluginController(PluginManager pluginManager)
+    public PluginController(PluginManager pluginManager, Environment environment)
     {
         this.pluginManager = pluginManager;
+        this.environment = environment;
     }
 
     @GetMapping
-    public CommonResponse<List<PluginMetadata>> getPlugins()
+    public CommonResponse<List<PluginMetadata>> getPlugins(@RequestParam(value = "hasConfigure", required = false) boolean hasConfigure)
     {
+        List<PluginMetadata> plugins = pluginManager.getPluginInfos()
+                .stream()
+                .filter(v -> v.getType().equals(PluginType.CONNECTOR))
+                .collect(Collectors.toList());
+
+        if (hasConfigure) {
+            plugins.forEach(plugin -> plugin.setConfigure(PluginUtils.loadYamlConfigure("JDBC", plugin.getName(), plugin.getName(), environment)));
+        }
+
         return CommonResponse.success(pluginManager.getPluginInfos());
     }
 
