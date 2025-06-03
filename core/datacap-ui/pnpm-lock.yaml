@@ -66,8 +66,8 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1
       view-shadcn-ui:
-        specifier: ^2025.1.2
-        version: 2025.1.2(typescript@5.2.2)
+        specifier: ^2025.1.3
+        version: 2025.1.3(typescript@5.2.2)
       vue:
         specifier: ^3.4.21
         version: 3.5.12(typescript@5.2.2)
@@ -1066,6 +1066,9 @@ packages:
     resolution: {integrity: sha512-b8AmV3kfQaqWAuacbPuNbL6vahnOJflOhexLzMMNLga62+/nh0JzvJ0aO/5a5MVgUFGS7Hu1P9P03o3fJkDCyw==}
     engines: {node: '>=12'}
 
+  dayjs@1.11.13:
+    resolution: {integrity: sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==}
+
   de-indent@1.0.2:
     resolution: {integrity: sha512-e/1zu3xH5MQryN2zdVaF0OrdNLUbvWxzMbi+iNA6Bky7l1RoP8a2fIbRocyHclXt/arDrrR6lL3TqFD9pMQTsg==}
 
@@ -1503,8 +1506,8 @@ packages:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
 
-  view-shadcn-ui@2025.1.2:
-    resolution: {integrity: sha512-B7AjRC2p8h62LNSCdQ18Blo8RB/oExyA/MunhSzyij0+m+dkR1cApt9h9EGPpwNwUnKvGp2wIROZ95muUxg3XA==}
+  view-shadcn-ui@2025.1.3:
+    resolution: {integrity: sha512-gE2rrbReTDZqZvtolKJwP2L+LT8pypipnJccC9cVVC7r24mHHVsD3akDZJNR6dK6H8YkzHkCf2M3AQSqaD7Y0Q==}
 
   vite@5.4.10:
     resolution: {integrity: sha512-1hvaPshuPUtxeQ0hsVH3Mud0ZanOLwVTneA1EgbAM5LhaZEqyPWGRQ7BtaMvUrTDeEaC8pxtj6a6jku3x4z6SQ==}
@@ -2841,6 +2844,8 @@ snapshots:
       d3-selection: 3.0.0
       d3-transition: 3.0.1(d3-selection@3.0.0)
 
+  dayjs@1.11.13: {}
+
   de-indent@1.0.2: {}
 
   decamelize@1.2.0: {}
@@ -3269,9 +3274,10 @@ snapshots:
 
   uuid@9.0.1: {}
 
-  view-shadcn-ui@2025.1.2(typescript@5.2.2):
+  view-shadcn-ui@2025.1.3(typescript@5.2.2):
     dependencies:
       clsx: 2.1.1
+      dayjs: 1.11.13
       lodash: 4.17.21
       lucide-vue-next: 0.360.0(vue@3.5.12(typescript@5.2.2))
       monaco-editor: 0.52.2

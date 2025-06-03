@@ -28,14 +28,18 @@ public class PluginUtils
 
     public static Optional<PluginService> getPluginByName(Injector injector, String pluginName)
     {
-        Optional<PluginService> pluginOptional = injector.getInstance(Key.get(new TypeLiteral<Set<PluginService>>() {})).stream().filter(plugin -> plugin.name().equalsIgnoreCase(pluginName)).findFirst();
-        return pluginOptional;
+        return injector.getInstance(Key.get(new TypeLiteral<Set<PluginService>>() {}))
+                .stream()
+                .filter(plugin -> plugin.name().equalsIgnoreCase(pluginName))
+                .findFirst();
     }
 
     public static Optional<PluginService> getPluginByNameAndType(Injector injector, String pluginName, String pluginType)
     {
-        Optional<PluginService> pluginOptional = injector.getInstance(Key.get(new TypeLiteral<Set<PluginService>>() {})).stream().filter(plugin -> plugin.name().equalsIgnoreCase(pluginName) && plugin.type().name().equalsIgnoreCase(pluginType)).findFirst();
-        return pluginOptional;
+        return injector.getInstance(Key.get(new TypeLiteral<Set<PluginService>>() {}))
+                .stream()
+                .filter(plugin -> plugin.name().equalsIgnoreCase(pluginName) && plugin.type().name().equalsIgnoreCase(pluginType))
+                .findFirst();
     }
 
     @Deprecated

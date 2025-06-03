@@ -176,14 +176,6 @@ public interface PluginService
 
     default Response execute(Configure configure, String content)
     {
-        if (!this.isSupportMeta()) {
-            return Response.builder()
-                    .isSuccessful(false)
-                    .isConnected(false)
-                    .message("This plugin does not support metadata management")
-                    .build();
-        }
-
         this.connect(configure);
         return this.execute(content);
     }

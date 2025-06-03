@@ -10,10 +10,8 @@
         <ShadcnTab v-model="activeTab" :key="`tab-${configureTabs.length}`" @on-change="onChangeTab">
           <ShadcnTabItem value="source" :label="$t('source.common.source')" :key="'source-tab'">
             <ShadcnFormItem name="type" :label="$t('source.common.type')" :rules="[{ required: true, message: $t('function.tip.selectPluginHolder') }]">
-              <ShadcnToggleGroup v-model="formState.type" class="flex flex-wrap gap-3" name="plugin">
-                <ShadcnToggle v-for="plugin in plugins" class="p-1"
-                              :key="plugin.name"
-                              :value="plugin.name">
+              <ShadcnToggleGroup v-model="formState.type" class="flex flex-wrap gap-3" name="plugin" :disabled="!hasJsonConvert">
+                <ShadcnToggle v-for="plugin in plugins" class="p-1" :key="plugin.name" :value="plugin.name">
                   <ShadcnTooltip :content="plugin.name" class="p-1">
                     <img class="h-16 w-16 object-contain" :src="'/static/images/plugin/' + plugin.name.toLowerCase() + '.svg'" :alt="plugin.name">
                   </ShadcnTooltip>
@@ -26,6 +24,7 @@
                          class="space-y-4"
                          :key="tab"
                          :value="tab"
+                         :disabled="!hasJsonConvert"
                          :label="$t(`source.common.${ tab }`)">
             <ShadcnFormItem v-for="configure in pluginTabConfigure"
                             :name="configure.field"
@@ -119,6 +118,7 @@ import { defineComponent } from 'vue'
 import { SourceModel, SourceRequest } from '@/model/source'
 import { cloneDeep, pick } from 'lodash'
 import SourceService from '@/services/source'
+import PluginService from '@/services/plugin'
 import { TokenUtils } from '@/utils/token'
 import { ResponseModel } from '@/model/response'
 
@@ -172,7 +172,8 @@ export default defineComponent({
       pluginConfigure: null as unknown as any,
       pluginTabConfigure: null as unknown as any,
       applyConfigure: null as unknown as any,
-      originalSchema: null as unknown as any
+      originalSchema: null as unknown as any,
+      hasJsonConvert: false
     }
   },
   created()
@@ -246,23 +247,30 @@ export default defineComponent({
 
         // 获取插件列表的 Promise
         // Get plugins promise
-        const getPluginsPromise = SourceService.getPlugins()
+        const getPluginsPromise = PluginService.getPlugins(true)
+
+        const pluginsResponse = await getPluginsPromise
+        this.hasJsonConvert = pluginsResponse.data.some(value =>
+            value.type?.toLowerCase() === 'convert' &&
+            value.name === 'JsonConvert'
+        )
+
+        if (!this.hasJsonConvert) {
+          this.testInfo.message = this.$t('plugin.text.requiredJsonConvert')
+        }
+
+        if (pluginsResponse.status) {
+          this.plugins = pluginsResponse.data.filter((plugin: { type: string }) =>
+              plugin.type?.toLowerCase() === 'connector'
+          )
+        }
 
         if (this.info) {
-          this.title = `${ this.$t('source.common.modify').replace('$NAME', String(this.info.name)) }`
+          this.title = `${ this.$t('source.common.modify').replace('$NAME', String(this.info.name || '...')) }`
 
           // 同时执行获取插件列表和源代码信息的请求
           // Simultaneously execute requests to get plugin list and source code
-          const [pluginsResponse, sourceResponse] = await Promise.all([
-            getPluginsPromise,
-            SourceService.getByCode(this.info.code)
-          ])
-
-          // 处理插件列表响应
-          // Handle plugin list response
-          if (pluginsResponse.status) {
-            this.plugins = pluginsResponse.data
-          }
+          const sourceResponse = await SourceService.getByCode(this.info.code)
 
           // 处理源代码信息响应
           // Handle source code response
@@ -280,19 +288,10 @@ export default defineComponent({
               this.updatePluginTabConfigure('source')
             }
           }
+
+          console.log(this.plugins)
         }
         else {
-          // 如果没有 info，只需要获取插件列表
-          // If there is no info, only get plugin list
-          const pluginsResponse = await getPluginsPromise
-          if (pluginsResponse.status) {
-            this.plugins = pluginsResponse.data
-
-            const hasJsonConvert = this.plugins.filter(value => value.type === 'Convert' && value.name === 'JsonConvert').length > 0
-            if (!hasJsonConvert) {
-              this.testInfo.message = 'JsonConvert plugin is required'
-            }
-          }
           this.formState = SourceRequest.of()
         }
       }

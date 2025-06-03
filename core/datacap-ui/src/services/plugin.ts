@@ -5,9 +5,9 @@ const DEFAULT_PATH = '/api/v1/plugin'
 
 class PluginService
 {
-    getPlugins(): Promise<ResponseModel>
+    getPlugins(hasConfigure?: boolean): Promise<ResponseModel>
     {
-        return new HttpUtils().get(`${ DEFAULT_PATH }`)
+        return new HttpUtils().get(`${ DEFAULT_PATH }`, { hasConfigure })
     }
 
     install(configure: { name: string, url: string }): Promise<ResponseModel>

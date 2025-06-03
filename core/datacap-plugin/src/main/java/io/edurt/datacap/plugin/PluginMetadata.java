@@ -20,6 +20,7 @@ public class PluginMetadata
     private PluginType type;
     private String loaderName;
     private String key;
+    private Object configure;
 
     @JsonIgnore
     private ClassLoader classLoader;
