@@ -68,7 +68,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 interface Props
 {
@@ -86,8 +85,6 @@ const props = withDefaults(defineProps<Props>(), {
   info: null
 })
 const emit = defineEmits<Emits>()
-const { t } = useI18n()
-
 const title = ref<string | null>(null)
 
 const visible = computed({
