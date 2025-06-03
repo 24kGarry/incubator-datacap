@@ -60,20 +60,54 @@
             </ShadcnTooltip>
           </div>
           <div class="mt-1">
-            <LanguageSwitcher @changeLanguage="onChangeLanguage($event)"/>
+            <LanguageSwitcher @changeLanguage="onChangeLanguage"/>
           </div>
 
           <div v-if="userInfo" class="mt-2.5">
-            <ShadcnLink link="/admin/notify">
-              <template v-if="userInfo?.unreadCount > 0">
-                <ShadcnBadge dot>
-                  <ShadcnIcon icon="Bell" class="hover:text-blue-400" :size="20"/>
+            <ShadcnNotification :height="300" :loadData="loadMoreNotifications">
+              <template #trigger>
+                <ShadcnBadge v-if="userInfo?.unreadCount > 0" dot :text="userInfo?.unreadCount">
+                  <ShadcnIcon icon="Bell" class="hover:text-blue-400 cursor-pointer" :size="20"/>
                 </ShadcnBadge>
+                <ShadcnIcon v-else icon="Bell" class="hover:text-blue-400 cursor-pointer" :size="20"/>
               </template>
-              <template v-else>
-                <ShadcnIcon icon="Bell" class="hover:text-blue-400" :size="20"/>
+
+              <template #actions>
+                <span></span>
               </template>
-            </ShadcnLink>
+
+              <ShadcnNotificationItem v-for="(item, index) in messages"
+                                      :key="index"
+                                      :item="item"
+                                      @on-click="handleNotificationClick">
+                <template #title>
+                  <div class="mt-1 text-sm text-gray-600">
+                    <div v-if="item.entityExists" class="flex space-x-1">
+                      <span>{{ $t(`common.${ item.entityType?.toLowerCase() || '' }`) }}</span>
+
+                      <template v-if="item.entityType === 'DATASET'">
+                        <RouterLink :to="`/admin/dataset/info/${item.entityCode}`" target="_blank" class="hover:text-blue-400 flex items-center">
+                          [ {{ item.entityName }} ]
+                        </RouterLink>
+                      </template>
+
+                      <template v-else>
+                        <ShadcnLink class="hover:text-blue-400" :to="'/' + item.entityType + '/' + item.entityCode">[ {{ item.entityName }} ]</ShadcnLink>
+                      </template>
+
+                      <span>{{ $t(`common.${ item.type?.toLowerCase() || '' }`) }}</span>
+                    </div>
+                    <div v-else>
+                      {{ $t(`common.${ item.entityType?.toLowerCase() || '' }`) }} [ {{ item.entityName }} ] {{ $t(`common.${ item.type?.toLowerCase() || '' }`) }}
+                    </div>
+                  </div>
+                </template>
+
+                <template #time>
+                  <ShadcnTime relative :reference-time="item.createTime"/>
+                </template>
+              </ShadcnNotificationItem>
+            </ShadcnNotification>
           </div>
 
           <!-- User Info -->
@@ -125,49 +159,108 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted } from 'vue'
+<script setup lang="ts">
+import { getCurrentInstance, onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia'
 import { TokenUtils } from '@/utils/token'
 import router from '@/router'
 import { createDefaultRouter } from '@/router/default'
 import LanguageSwitcher from '@/views/layouts/common/components/components/LanguageSwitcher.vue'
+import NotificationService from '@/services/notification'
+import { FilterModel } from '@/model/filter.ts'
+import { cloneDeep } from 'lodash'
 
-export default defineComponent({
-  name: 'LayoutHeader',
-  setup()
-  {
-    const userStore = useUserStore()
-    const { userInfo, isLoggedIn, menu: activeMenus } = storeToRefs(userStore)
+const userStore = useUserStore()
+const { proxy } = getCurrentInstance()!
+const filter: FilterModel = new FilterModel()
+const messages = ref<any[]>([])
+const pageIndex = ref<number>(1)
+const hasMoreData = ref(true)
+const loading = ref(false)
 
-    onMounted(async () => {
-      if (TokenUtils.getAuthUser()) {
-        await userStore.fetchUserInfo()
-      }
-    })
+const { userInfo, isLoggedIn, menu: activeMenus } = storeToRefs(userStore)
 
-    const logout = () => {
-      userStore.logout()
-      createDefaultRouter(router)
-      router.push('/auth/signin')
-    }
+const emit = defineEmits<{
+  changeLanguage: [language: string]
+}>()
 
-    return {
-      userInfo,
-      isLoggedIn,
-      activeMenus,
-      logout
-    }
-  },
-  components: {
-    LanguageSwitcher
-  },
-  methods: {
-    onChangeLanguage(language: string)
-    {
-      this.$emit('changeLanguage', language)
-    }
+onMounted(async () => {
+  if (TokenUtils.getAuthUser()) {
+    await userStore.fetchUserInfo()
+    await fetchMessages()
   }
 })
+
+const logout = () => {
+  userStore.logout()
+  createDefaultRouter(router)
+  router.push('/auth/signin')
+}
+
+const onChangeLanguage = (language: string) => {
+  emit('changeLanguage', language)
+}
+
+const handleNotificationClick = (message: any) => {
+  const { id, code } = message
+  const payload = { id, code, isRead: true }
+  NotificationService.saveOrUpdate(payload)
+                     .then(response => {
+                       if (response.status && response.data) {
+                         fetchMessages()
+                         userStore.fetchUserInfo()
+                       }
+                       else {
+                         // @ts-ignore
+                         proxy.$Message.error({
+                           content: response.message,
+                           showIcon: true
+                         })
+                       }
+                     })
+}
+
+const fetchMessages = async (value: number = 1) => {
+  filter.page = value
+  filter.orders = [{ column: 'createTime', order: 'desc' }]
+  loading.value = true
+  try {
+    const response = await NotificationService.getAll(filter)
+    if (response.status && response.data) {
+      messages.value = response.data.content.map((item: any) => {
+        item.read = item.isRead
+        return item
+      })
+      pageIndex.value = response.data.page
+      hasMoreData.value = response.data.page < response.data.totalPage
+    }
+    else {
+      // @ts-ignore
+      proxy.$Message.error({
+        content: response.message,
+        showIcon: true
+      })
+    }
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+const loadMoreNotifications = async (callback: (items: any[]) => void) => {
+  if (loading.value || !hasMoreData.value) {
+    callback([])
+    return
+  }
+
+  const oldData = cloneDeep(messages.value)
+  loading.value = true
+  pageIndex.value++
+  await fetchMessages(pageIndex.value)
+  const newItems = messages.value
+  messages.value = [...oldData, ...newItems]
+  callback(newItems)
+  loading.value = false
+}
 </script>
