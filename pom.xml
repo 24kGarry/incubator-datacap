@@ -114,6 +114,7 @@
         <module>test/datacap-test-driver</module>
         <module>test/datacap-test-parser</module>
         <module>test/datacap-test-condor</module>
+        <module>plugin/datacap-plugin-dolphindb</module>
     </modules>
 
     <name>datacap</name>
@@ -218,6 +219,7 @@
         <datacap.s3.version>1.12.771</datacap.s3.version>
         <datacap.minio.version>8.5.12</datacap.minio.version>
         <datacap.maven.model.version>3.9.6</datacap.maven.model.version>
+        <datacap.dolphindb.version>3.00.2.0</datacap.dolphindb.version>
         <!-- maven plugin -->
         <plugin.maven.checkstyle.version>3.3.1</plugin.maven.checkstyle.version>
         <plugin.maven.findbugs.version>4.8.5.0</plugin.maven.findbugs.version>
