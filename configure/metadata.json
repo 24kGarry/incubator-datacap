@@ -801,6 +801,21 @@
       "url": "https://repo1.maven.org/maven2/io/edurt/datacap/datacap-plugin-mongo-community/2025.1.1/datacap-plugin-mongo-community-2025.1.1-bin.tar.gz"
     },
     {
+      "key": "datacap-plugin-dolphindb",
+      "label": "DolphinDB",
+      "description": "DolphinDB is a real-time platform for analytics and stream processing, powered by a high-performance time series database. It offers capabilities related to efficient writes, fast queries, complex analysis, distributed parallel computing, and low-latency stream computing. It also supports high availability.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2025.1.1",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/dolphindb.svg",
+      "released": "2025-03-09 12:11:12",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "https://repo1.maven.org/maven2/io/edurt/datacap/datacap-plugin-dolphindb/2025.1.1/datacap-plugin-dolphindb-2025.1.1-bin.tar.gz"
+    },
+    {
       "key": "datacap-convert-csv",
       "label": "Csv Convert",
       "description": "A CSV file conversion plugin for DataCap.",

@@ -81,6 +81,7 @@
         <module>plugin/datacap-plugin-elasticsearch-8x</module>
         <module>plugin/datacap-plugin-mongo-atlas</module>
         <module>plugin/datacap-plugin-mongo-community</module>
+        <module>plugin/datacap-plugin-dolphindb</module>
         <module>executor/datacap-executor-spi</module>
         <module>executor/datacap-executor-local</module>
         <module>executor/datacap-executor-seatunnel</module>
@@ -114,7 +115,6 @@
         <module>test/datacap-test-driver</module>
         <module>test/datacap-test-parser</module>
         <module>test/datacap-test-condor</module>
-        <module>plugin/datacap-plugin-dolphindb</module>
     </modules>
 
     <name>datacap</name>

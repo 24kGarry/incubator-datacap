@@ -28,7 +28,9 @@
         </template>
 
         <template #version="{row}">
-          <ShadcnTag :text="row.version || '-'" size="default" type="primary"/>
+          <ShadcnTooltip v-if="row.version" :content="row.version">
+            <ShadcnTag :text="formatVersionText(row.version)" size="default" type="primary" class="cursor-pointer"/>
+          </ShadcnTooltip>
         </template>
 
         <template #available="{row}">
@@ -231,6 +233,23 @@ export default defineComponent({
     {
       this.dataHistoryVisible = opened
       this.dataInfo = value
+    },
+    formatVersionText(version, maxLength = 20)
+    {
+      if (!version) {
+        return '-'
+      }
+
+      if (version.length <= maxLength) {
+        return version
+      }
+
+      // 计算前后保留的字符数
+      // Calculate characters to keep at front and back
+      const frontLength = Math.ceil((maxLength - 3) / 2)
+      const backLength = Math.floor((maxLength - 3) / 2)
+
+      return `${ version.substring(0, frontLength) }...${ version.substring(version.length - backLength) }`
     }
   }
 })

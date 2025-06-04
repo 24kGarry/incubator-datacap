@@ -162,8 +162,44 @@ public class CheckScheduledRunnable
                         return ((ArrayList<?>) version).get(0).toString();
                     }
                     else if (version instanceof JsonNode) {
+                        JsonNode jsonNode = (JsonNode) version;
                         String columnName = response.getHeaders().get(0);
-                        return ((JsonNode) version).get(columnName).asText();
+
+                        // 处理 POJONode 类型
+                        // Handle POJONode type
+                        if (jsonNode.isPojo() || jsonNode.isObject()) {
+                            try {
+                                // 将 POJONode 转换为字符串然后重新解析
+                                // Convert POJONode to string and reparse
+                                String pojoString = jsonNode.toString();
+                                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                                JsonNode parsedNode = mapper.readTree(pojoString);
+
+                                if (parsedNode.isObject()) {
+                                    JsonNode valueNode = parsedNode.get(columnName);
+                                    if (valueNode != null) {
+                                        // 如果是对象包含 values 数组，取第一个值
+                                        // If object contains values array, take first value
+                                        if (valueNode.isObject() && valueNode.has("values") && valueNode.get("values").isArray()) {
+                                            JsonNode valuesArray = valueNode.get("values");
+                                            if (!valuesArray.isEmpty()) {
+                                                return valuesArray.get(0).asText();
+                                            }
+                                        }
+                                        return valueNode.asText();
+                                    }
+                                }
+                                return parsedNode.asText();
+                            }
+                            catch (Exception e) {
+                                return jsonNode.asText();
+                            }
+                        }
+
+                        // 处理普通 JsonNode
+                        // Handle regular JsonNode
+                        JsonNode valueNode = jsonNode.get(columnName);
+                        return valueNode != null ? valueNode.asText() : jsonNode.asText();
                     }
                     else if (version instanceof Map) {
                         String columnName = response.getHeaders().get(0);
