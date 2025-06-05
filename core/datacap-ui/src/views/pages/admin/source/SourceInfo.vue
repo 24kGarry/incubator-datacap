@@ -288,8 +288,6 @@ export default defineComponent({
               this.updatePluginTabConfigure('source')
             }
           }
-
-          console.log(this.plugins)
         }
         else {
           this.formState = SourceRequest.of()
@@ -430,10 +428,45 @@ export default defineComponent({
 
       this.configureTabs = [...new Set(validGroups)]
     },
-    extractVersion(json: string)
+    extractVersion(json)
     {
       const columnName = json['headers'][0]
-      return json['columns'][0][columnName]
+      const column = json['columns'][0]
+
+      // 如果 column 是对象类型（ObjectNode），通过 columnName 获取值
+      // If column is object type (ObjectNode), get value through columnName
+      if (typeof column === 'object' && column !== null && !Array.isArray(column)) {
+        const value = column[columnName]
+        if (value !== undefined) {
+          // 如果值是对象且包含 values 数组，提取第一个元素
+          // If value is object and contains values array, extract first element
+          if (typeof value === 'object' && value.values && Array.isArray(value.values)) {
+            return value.values.length === 1 ? value.values[0] : value.values
+          }
+          // 如果值是对象且包含 string 字段，返回 string 值
+          // If value is object and contains string field, return string value
+          if (typeof value === 'object' && value.string) {
+            return value.string
+          }
+          return value
+        }
+        return column
+      }
+
+      // 如果 column 是字符串类型，直接处理
+      // If column is string type, process directly
+      if (typeof column === 'string') {
+        // 去除字符串两端的引号（如果存在）
+        // Remove quotes from both ends of string (if exists)
+        if (column.startsWith('"') && column.endsWith('"') && column.length > 1) {
+          return column.slice(1, -1)
+        }
+        return column
+      }
+
+      // 其他情况直接返回
+      // Return directly for other cases
+      return column
     }
   }
 })

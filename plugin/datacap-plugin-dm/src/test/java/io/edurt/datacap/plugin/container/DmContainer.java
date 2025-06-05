@@ -41,6 +41,14 @@ public class DmContainer
         super(DockerImageName.parse(dockerImageName));
         withExposedPorts(DEFAULT_PORT);
         withStartupTimeout(Duration.of(240, ChronoUnit.SECONDS));
+
+        // 添加平台兼容性支持
+        // Add platform compatibility support
+        withCreateContainerCmdModifier(cmd -> {
+            // 强制指定平台为 linux/amd64
+            // Force the platform to be linux/amd64
+            cmd.withPlatform("linux/amd64");
+        });
     }
 
     public DmContainer withXa()

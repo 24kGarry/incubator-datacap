@@ -39,6 +39,7 @@
                   <div class="flex flex-col items-center space-y-2 justify-between">
                     <ShadcnAvatar class="bg-transparent"
                                   size="large"
+                                  style="width: 4rem; height: 4rem;"
                                   :src="plugin.logo"
                                   :alt="plugin.i18nFormat ? $t(plugin.label) : plugin.label"
                                   @click="onVisibleInfo(plugin, true)">
