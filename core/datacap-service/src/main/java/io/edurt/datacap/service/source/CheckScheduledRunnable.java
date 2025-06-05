@@ -26,7 +26,7 @@ import java.util.Optional;
  * </p>
  */
 @Slf4j
-@SuppressFBWarnings(value = {"EI_EXPOSE_REP2"})
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2", "REC_CATCH_EXCEPTION"})
 public class CheckScheduledRunnable
         extends ScheduledRunnable
 {
