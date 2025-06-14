@@ -463,6 +463,7 @@ export default defineComponent({
                     .then((response) => {
                       if (response.status) {
                         this.data = response
+                        this.columnDefs = []
                         response.data?.headers.forEach((header: any) => {
                           const columnDef: GridColumn = { headerName: header, field: header }
                           this.columnDefs.push(columnDef)
