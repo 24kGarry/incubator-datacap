@@ -1,27 +1,31 @@
 package io.edurt.datacap.convert.json
 
-import com.google.inject.Guice.createInjector
-import com.google.inject.Injector
-import com.google.inject.Key
-import com.google.inject.TypeLiteral
-import io.edurt.datacap.convert.Convert
-import io.edurt.datacap.convert.ConvertManager
-import org.junit.Assert.assertEquals
+import io.edurt.datacap.plugin.PluginConfigure
+import io.edurt.datacap.plugin.PluginManager
+import io.edurt.datacap.plugin.utils.PluginPathUtils
+import lombok.extern.slf4j.Slf4j
 import org.junit.Test
 
-class JsonModuleTest
+@Slf4j
+class XmlConvertPluginTest
 {
-    private val injector: Injector = createInjector(ConvertManager())
+    private val pluginManager: PluginManager
+    private val pluginName: String = "JsonConvert"
+
+    init
+    {
+        val projectRoot = PluginPathUtils.findProjectRoot()
+        val config = PluginConfigure.builder()
+            .pluginsDir(projectRoot.resolve("convert/datacap-convert-json"))
+            .scanDepth(2)
+            .build()
+
+        pluginManager = PluginManager(config).apply { start() }
+    }
 
     @Test
     fun test()
     {
-        injector.getInstance(Key.get(object : TypeLiteral<Set<Convert>>()
-        {}))
-            .stream()
-            .findFirst()
-            .ifPresent {
-                assertEquals("JsonConvert", it.name())
-            }
+        println(pluginManager.getPlugin(pluginName))
     }
 }

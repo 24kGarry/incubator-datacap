@@ -10,7 +10,7 @@ interface ConvertService : Service
     {
         return this.javaClass
             .simpleName
-            .removeSuffix("Convert")
+            .removeSuffix("ConvertService")
     }
 
     fun description(): String

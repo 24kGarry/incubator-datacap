@@ -99,14 +99,16 @@
                         @on-change="onPageChange"
                         @on-prev="onPrevChange"
                         @on-next="onNextChange"
-                        @on-change-size="onSizeChange"/>
+                        @on-change-size="onSizeChange">
+      </ShadcnPagination>
     </div>
   </ShadcnCard>
 
   <SourceInfo v-if="dataInfoVisible"
               :is-visible="dataInfoVisible"
               :info="dataInfo"
-              @close="visibleInfo(false, null)"/>
+              @close="visibleInfo(false, null)">
+  </SourceInfo>
 
   <SourceDelete v-if="dataDeleteVisible"
                 :is-visible="dataDeleteVisible"
