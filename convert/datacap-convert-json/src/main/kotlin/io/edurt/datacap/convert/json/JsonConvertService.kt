@@ -46,7 +46,21 @@ class JsonConvertService : ConvertService
                         val header = request.headers[headerIndex] as String
                         when (column)
                         {
-                            is List<*> -> jsonNode.putPOJO(header, column[headerIndex])
+                            is List<*> ->
+                            {
+                                val value = column[headerIndex]
+                                when (value)
+                                {
+                                    is LocalDateTime ->
+                                    {
+                                        val timeString = value.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                                        jsonNode.put(header, timeString)
+                                    }
+
+                                    else -> jsonNode.putPOJO(header, value)
+                                }
+                            }
+
                             else -> jsonNode.putPOJO(header, column)
                         }
                     }

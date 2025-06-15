@@ -15,7 +15,8 @@
                 <ShadcnSelectOption v-for="executor in installedExecutors"
                                     :key="executor.name"
                                     :label="executor.name"
-                                    :value="executor.name"/>
+                                    :value="executor.name">
+                </ShadcnSelectOption>
               </template>
             </ShadcnSelect>
           </div>
@@ -34,7 +35,8 @@
                               :categories="configuration.categories"
                               :nodes="configuration.nodes"
                               :connections="[]"
-                              :configureWidth="380"/>
+                              :configureWidth="380">
+        </ShadcnWorkflowEditor>
       </div>
     </ShadcnCard>
   </div>
