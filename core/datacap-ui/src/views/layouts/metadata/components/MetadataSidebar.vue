@@ -246,9 +246,9 @@ export default defineComponent({
                          if (response.status) {
                            response.data.columns.forEach(item => {
                              const structure: StructureModel = {
-                               title: item.object_name,
-                               catalog: item.object_name,
-                               code: item.object_name
+                               title: item.object_name || item.schema_name || item.SCHEMA_NAME,
+                               catalog: item.object_name || item.schema_name || item.SCHEMA_NAME,
+                               code: item.object_name || item.schema_name || item.SCHEMA_NAME
                              }
                              this.databaseArray.push(structure)
                            })

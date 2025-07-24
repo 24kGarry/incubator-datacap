@@ -7,7 +7,7 @@
         <ShadcnCol span="4">
           <div class="flex items-center space-x-2">
             <ShadcnIcon icon="Database"/>
-            <span>{{ dataInfo.object_name }}</span>
+            <span>{{ dataInfo.object_name || dataInfo.schema_name || dataInfo.SCHEMA_NAME }}</span>
           </div>
         </ShadcnCol>
 

@@ -1292,8 +1292,6 @@ public interface PluginService
 
     default Pagination formatPagination(Configure configure, String sql, TableDefinition definition)
     {
-        // 强制指定为 JsonConvert
-        configure.setFormat("JsonConvert");
         Response response = this.getResponse(
                 sql.replace("{0}", definition.getDatabase())
                         .replace("{1}", definition.getName())

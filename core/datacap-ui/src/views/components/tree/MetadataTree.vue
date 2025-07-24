@@ -63,11 +63,11 @@ export default defineComponent({
                          if (response.status && response.data && response.data.isSuccessful) {
                            response.data.columns.forEach(item => {
                              const structure = {
-                               title: item.object_name,
-                               catalog: item.object_name,
-                               code: item.object_name,
+                               title: item.object_name || item.schema_name || item.SCHEMA_NAME,
+                               catalog: item.object_name || item.schema_name || item.SCHEMA_NAME,
+                               code: item.object_name || item.schema_name || item.SCHEMA_NAME,
                                level: StructureEnum.DATABASE,
-                               value: item.object_name,
+                               value: item.object_name || item.schema_name || item.SCHEMA_NAME,
                                isLeaf: false
                              }
                              this.data.push(structure)

@@ -166,7 +166,7 @@ export default defineComponent({
       setTimeout(() => {
         this.loading = true
         if (this.type === 'QUERY') {
-          const configure: ExecuteModel = { name: this.original as any, content: this.query as any, mode: 'REPORT', format: 'JsonConvert' }
+          const configure: ExecuteModel = { name: this.original as any, content: this.query as any, mode: 'REPORT' }
           ExecuteService.execute(configure, null)
                         .then(response => {
                           if (response.status && response.data.isSuccessful) {
