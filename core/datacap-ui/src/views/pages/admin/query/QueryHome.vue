@@ -240,7 +240,7 @@ export default defineComponent({
     {
       this.createEditor()
 
-      this.queryConfigure.configure = { name: this.selectSource.id as string, content: '', mode: 'ADHOC', format: 'JsonConvert' }
+      this.queryConfigure.configure = { name: this.selectSource.id as string, content: '', mode: 'ADHOC' }
       const params = this.$route.params
       if (params) {
         const code = params.code

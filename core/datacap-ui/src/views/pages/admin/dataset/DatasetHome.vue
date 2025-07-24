@@ -107,6 +107,8 @@
                         :page-size="pageSize"
                         :total="dataCount"
                         :sizerOptions="[10, 20, 50]"
+                        :prevText="$t('source.common.previousPage')"
+                        :nextText="$t('source.common.nextPage')"
                         @on-change="onPageChange"
                         @on-prev="onPrevChange"
                         @on-next="onNextChange"

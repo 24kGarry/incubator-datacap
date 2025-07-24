@@ -74,7 +74,6 @@ export default defineComponent({
       title: null as string | null,
       formats: [],
       formState: {
-        format: 'JsonConvert',
         count: 5000,
         path: null
       }
