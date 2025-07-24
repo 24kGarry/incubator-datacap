@@ -53,7 +53,7 @@ export default defineComponent({
                          }
                          else {
                            this.$Message.error({
-                             content: response.message,
+                             content: response.data?.message,
                              showIcon: true
                            })
                          }
