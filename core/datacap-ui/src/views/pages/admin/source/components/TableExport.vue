@@ -16,7 +16,7 @@
         <ShadcnRow>
           <ShadcnCol span="6">
             <ShadcnFormItem name="count" :label="$t('source.common.exportDataCount')">
-              <ShadcnNumber v-model="formState.count" name="count"/>
+              <ShadcnNumber v-model="formState.pagination.size" name="count"/>
             </ShadcnFormItem>
           </ShadcnCol>
         </ShadcnRow>
@@ -75,7 +75,10 @@ export default defineComponent({
       formats: [],
       formState: {
         format: 'JsonConvert',
-        count: 5000,
+        pagination: {
+          page: 1,
+          size: 5000
+        },
         path: null
       }
     }

@@ -230,7 +230,9 @@ public class MetadataServiceImpl
                             PluginService service = plugin.getService(PluginService.class);
                             Configure conf = entity.toConfigure(pluginManager, plugin);
                             conf.setFormat(configure.getFormat());
-                            return CommonResponse.success(Response.builder().build());
+                            configure.setDatabase(database);
+                            configure.setName(table);
+                            return CommonResponse.success(service.queryTable(conf, configure));
                         })
                         .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
                 .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));

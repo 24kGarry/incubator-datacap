@@ -13,7 +13,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/mysql.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "8.0",
         "5.7"
@@ -29,7 +29,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/clickhouse.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -44,7 +44,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/influxdb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -59,7 +59,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/solr.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -74,7 +74,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/cratedb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -89,7 +89,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/cratedbhttp.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -104,7 +104,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/zookeeper.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -119,7 +119,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/kafka.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -134,7 +134,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/redis.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -149,7 +149,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/h2.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -164,7 +164,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/db2.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -179,7 +179,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/dm.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -194,7 +194,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/hdfs.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -209,7 +209,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/alioss.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -224,7 +224,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/dremio.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -239,7 +239,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/druid.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -254,7 +254,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/duckdb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -269,7 +269,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/pinot.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -284,7 +284,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/cassandra.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -299,7 +299,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/matrixone.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -314,7 +314,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/scylladb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -329,7 +329,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/paradedb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -344,7 +344,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/hive2x.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "2.x"
       ],
@@ -359,7 +359,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/kyuubi.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -374,7 +374,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/ignite.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -389,7 +389,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/impala.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -404,7 +404,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/kylin.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -419,7 +419,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/timescale.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -434,7 +434,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/iotdb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -449,7 +449,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/monetdb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -464,7 +464,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/ydb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -479,7 +479,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/neo4j.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -494,7 +494,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/oceanbase.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -509,7 +509,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/oracle.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -524,7 +524,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/phoenix.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -539,7 +539,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/postgresql.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -554,7 +554,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/presto.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -569,7 +569,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/snowflake.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -584,7 +584,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/sqlserver.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -599,7 +599,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/tdengine.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -614,7 +614,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/trino.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -629,7 +629,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/doris.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -644,7 +644,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/starrocks.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -659,7 +659,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/hologres.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -674,7 +674,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/greptimedb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -689,7 +689,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/questdb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -704,7 +704,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/h2tcp.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -719,7 +719,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/clickhousehttp.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -734,7 +734,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/ceresdb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -749,7 +749,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/redisjdbc.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -764,7 +764,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/elasticsearch8x.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "8.x"
       ],
@@ -779,7 +779,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/mongoatlas.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -794,7 +794,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/mongocommunity.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -809,7 +809,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/dolphindb.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -824,7 +824,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/csv.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -839,7 +839,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/txt.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -854,7 +854,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/json.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -869,7 +869,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/xml.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -884,7 +884,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/none.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -899,7 +899,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/executor/local.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -914,7 +914,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/executor/seatunnel.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -929,7 +929,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/scheduler/local.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -944,7 +944,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/local.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -959,7 +959,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/qiniu.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -974,7 +974,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/alioss.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -989,7 +989,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/tencent-cos.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -1004,7 +1004,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/amazon-s3.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],
@@ -1019,7 +1019,7 @@
       "version": "2025.1.1",
       "author": "datacap-community",
       "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/minio.svg",
-      "released": "2025-03-09 12:11:12",
+      "released": "2025-07-28 13:11:12",
       "supportVersion": [
         "ALL"
       ],

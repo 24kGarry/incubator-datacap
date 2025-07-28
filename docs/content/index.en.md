@@ -105,10 +105,7 @@ features:
         </svg>
       title: Join (DingTalk | WeChat)
       description: >-
-        <div class="flex justify-center">
-            <img src="/assets/dingtalk.png" alt="DingTalk" style="height: 160px;" />
-            <img src="/assets/wechat.png" alt="WeChat" style="height: 160px;" />
-        </div>
+        https://github.com/devlive-community/datacap/issues/950
 
 stats:
   title: Let the numbers speak
