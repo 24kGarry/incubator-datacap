@@ -105,10 +105,7 @@ features:
         </svg>
       title: 加入 (钉钉 ｜ 微信)
       description: >-
-        <div class="flex justify-center">
-            <img src="/assets/dingtalk.png" alt="钉钉" style="height: 160px;" />
-            <img src="/assets/wechat.png" alt="微信" style="height: 160px;" />
-        </div>
+        https://github.com/devlive-community/datacap/issues/950
 
 stats:
   title: 用数据说话

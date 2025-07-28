@@ -121,12 +121,7 @@ DataCap может запрашивать данные из любого хра�
 
 ---
 
-Откройте программное обеспечение DingTalk (слева) или WeChat (справа) и отсканируйте следующий QR-код, чтобы присоединиться
-
-<div>
-  <img src="docs/assets/dingtalk.png" width="200px" height="200px"/>
-  <img src="docs/assets/wechat.png" width="200px" height="200px"/>
-</div>
+Вид [Issues 950](https://github.com/devlive-community/datacap/issues/950)
 
 ## Признание
 

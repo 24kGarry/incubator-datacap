@@ -121,12 +121,7 @@ DataCap 可以从任何使用 SQL 的数据存储或数据引擎（ClickHouse、
 
 ---
 
-打开钉钉（左）或微信（右）软件扫描以下二维码加入
-
-<div>
-  <img src="docs/assets/dingtalk.png" width="200px" height="200px"/>
-  <img src="docs/assets/wechat.png" width="200px" height="200px"/>
-</div>
+查看 [Issues 950](https://github.com/devlive-community/datacap/issues/950)
 
 ## 鸣谢
 
