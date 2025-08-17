@@ -3,11 +3,12 @@
     <parent>
         <groupId>io.edurt.datacap</groupId>
         <artifactId>datacap</artifactId>
-        <version>2025.1.1</version>
+        <version>2025.1.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>datacap-fs-local</name>
     <artifactId>datacap-fs-local</artifactId>
     <description>DataCap - File System - Local</description>
 

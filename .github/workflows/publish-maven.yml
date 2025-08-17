@@ -1,8 +1,17 @@
 name: Publish via Maven Central
 
 on:
+  # 新发布触发
   release:
     types: [ published ]
+
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v1.0.0)'
+        required: true
+        type: string
 
 jobs:
   publish-maven-central:
@@ -22,7 +31,7 @@ jobs:
         with:
           maven_profiles: 'deploy'
           maven_goals_phases: 'clean deploy'
-          maven_args: '-DskipTests -Dspotbugs.skip'
+          maven_args: "-DskipTests -Dspotbugs.skip -Dcheckstyle.skip -pl '!test/datacap-test-condor,!test/datacap-test-convert,!test/datacap-test-core,!test/datacap-test-lib,!test/datacap-test-executor,!test/datacap-test-scheduler,!test/datacap-test-fs,!test/datacap-test-driver,!test/datacap-test-parser,!test/datacap-test-plugin'"
           gpg_private_key: ${{ secrets.GPG_SECRET }}
           gpg_passphrase: ${{ secrets.GPG_PASSWORD }}
           nexus_username: ${{ secrets.OSSRH_USERNAME }}

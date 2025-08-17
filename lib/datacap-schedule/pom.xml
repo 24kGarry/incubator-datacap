@@ -6,10 +6,11 @@
     <parent>
         <groupId>io.edurt.datacap</groupId>
         <artifactId>datacap</artifactId>
-        <version>2025.1.1</version>
+        <version>2025.1.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
+    <name>datacap-schedule</name>
     <artifactId>datacap-schedule</artifactId>
     <description>DataCap - Schedule</description>
 
