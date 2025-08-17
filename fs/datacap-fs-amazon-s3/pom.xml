@@ -6,10 +6,11 @@
     <parent>
         <groupId>io.edurt.datacap</groupId>
         <artifactId>datacap</artifactId>
-        <version>2025.1.1</version>
+        <version>2025.1.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
+    <name>datacap-fs-amazon-s3</name>
     <artifactId>datacap-fs-amazon-s3</artifactId>
     <description>DataCap - File System - Amazon S3</description>
 

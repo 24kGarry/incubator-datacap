@@ -6,10 +6,11 @@
     <parent>
         <artifactId>datacap</artifactId>
         <groupId>io.edurt.datacap</groupId>
-        <version>2025.1.1</version>
+        <version>2025.1.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
+    <name>datacap-plugin-alioss</name>
     <artifactId>datacap-plugin-alioss</artifactId>
     <description>DataCap - Plugin - AliYun OSS</description>
 
